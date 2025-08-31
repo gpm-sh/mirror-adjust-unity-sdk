@@ -122,12 +122,22 @@ jobs:
               ! -name "README.md" \
               ! -name "NOTICE-GPM.txt" \
               ! -name "CHANGES-GPM.md" \
+              ! -name "LICENSE" \
+              ! -name "LICENCE" \
               -exec rm -rf {} +
 
+            # Debug: Check upstream structure
+            echo "=== Upstream directory structure ==="
+            ls -la _upstream/
+            echo "=== Assets directory ==="
+            ls -la _upstream/Assets/
+            
             # Unwrap upstream Assets/Adjust/* → repo root (your layout)
             SRC="_upstream/Assets/Adjust"
             if [ ! -d "$SRC" ]; then
               echo "::error::Expected $SRC not found for $TAG"
+              echo "Available directories in _upstream/Assets/:"
+              ls -la _upstream/Assets/ || true
               exit 1
             fi
             shopt -s dotglob
