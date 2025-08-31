@@ -118,6 +118,7 @@ jobs:
               ! -name ".git" \
               ! -name ".github" \
               ! -name ".gpm" \
+              ! -name "_upstream" \
               ! -name "${PACKAGE_JSON}" \
               ! -name "README.md" \
               ! -name "NOTICE-GPM.txt" \
