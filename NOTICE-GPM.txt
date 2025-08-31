@@ -1,0 +1,8 @@
+This distribution includes modifications by GPM.sh:
+
+- Converted package layout to Unity UPM structure
+- Added assembly definition (.asmdef) files
+- Added package.json metadata
+
+Original source: https://github.com/adjust/unity_sdk
+License: MIT (see LICENSE)
