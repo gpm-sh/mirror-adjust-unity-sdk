@@ -1,0 +1,25 @@
+package:
+  id: "registry.gpm.sh/com.adjust.unity"
+  displayName: "Adjust Unity SDK (GPM Mirror)"
+  upstreamLayout: "unitypackage"
+  repack:
+    toUPM: true
+    map:
+      "Assets/Adjust/Runtime": "Packages/com.adjust.unity/Runtime"
+      "Assets/Adjust/Editor":  "Packages/com.adjust.unity/Editor"
+  asmdef:
+    runtime:
+      name: "com.adjust.unity"
+      references: []
+      includePlatforms: []
+    editor:
+      name: "com.adjust.unity.editor"
+      references: ["com.adjust.unity"]
+      includePlatforms: ["Editor"]
+  versioning:
+    scheme: "suffix"
+    suffix: "-gpm.1"
+  legal:
+    requireLicense: true
+    requireNotice: false
+    noteChanges: true

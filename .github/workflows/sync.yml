@@ -1,0 +1,178 @@
+name: Sync Adjust → Tag → Publish (auto)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_override:
+        description: "Upstream tag (e.g., v5.4.2). Leave empty to backfill latest N."
+        required: false
+        default: ""
+      max_tags:
+        description: "How many latest missing tags to backfill if no override."
+        required: false
+        default: "3"
+  schedule:
+    - cron: "17 3 * * *"  # daily
+
+permissions:
+  contents: write
+
+env:
+  UPSTREAM_URL_FILE: .gpm/upstream.url
+  PACKAGE_JSON: package.json
+  PACKAGE_NAME: com.adjust.unity
+  REGISTRY: https://registry.gpm.sh
+
+jobs:
+  sync_tag_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Tooling
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq git
+
+      - name: Setup Node (for pack/publish)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Configure npm auth
+        run: |
+          mkdir -p ~/.npm
+          cat > ~/.npmrc <<'NPMRC'
+          registry=${{ env.REGISTRY }}
+          //registry.gpm.sh/:_authToken=${GPM_TOKEN}
+          fetch-timeout=60000
+          NPMRC
+        env:
+          GPM_TOKEN: ${{ secrets.GPM_TOKEN }}
+
+      - name: Read upstream URL
+        id: upstream
+        run: |
+          URL="$(tr -d '\n' < ${UPSTREAM_URL_FILE} | xargs)"
+          [ -n "$URL" ] || { echo "::error::Missing .gpm/upstream.url"; exit 1; }
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Collect upstream tags
+        id: tags
+        run: |
+          git ls-remote --tags "${{ steps.upstream.outputs.url }}" \
+            | awk '{print $2}' | sed 's#refs/tags/##' | sed 's/\^{}//' \
+            | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+(-.*)?$' \
+            | sort -Vr > /tmp/upstream_tags.txt
+          echo "count=$(wc -l < /tmp/upstream_tags.txt)" >> $GITHUB_OUTPUT
+
+      - name: Build worklist (missing tags)
+        id: work
+        env:
+          TAG_OVERRIDE: ${{ inputs.tag_override }}
+          MAX_TAGS: ${{ inputs.max_tags }}
+        run: |
+          set -e
+          if [ -n "$TAG_OVERRIDE" ]; then
+            echo "$TAG_OVERRIDE" > /tmp/work.txt
+          else
+            # Local base tags are like vX.Y.Z (strip -gpm.* when comparing)
+            git tag -l | sed 's/-gpm\..*$//' | sort -u -Vr > /tmp/local_base_tags.txt || true
+            awk 'NR==FNR{have[$0]=1; next} {t=$0; if(!(t in have)) print t}' /tmp/local_base_tags.txt /tmp/upstream_tags.txt > /tmp/missing.txt
+            head -n "${MAX_TAGS:-3}" /tmp/missing.txt > /tmp/work.txt
+          fi
+          echo "Has work?"; test -s /tmp/work.txt && echo yes || echo no
+
+      - name: Nothing to do
+        if: ${{ !hashFiles('/tmp/work.txt') }}
+        run: echo "No missing upstream tags."
+
+      - name: Process each tag (sync → commit → tag → publish)
+        if: ${{ hashFiles('/tmp/work.txt') }}
+        env:
+          GPM_TOKEN: ${{ secrets.GPM_TOKEN }}
+        run: |
+          set -e
+          while read -r TAG; do
+            [ -n "$TAG" ] || continue
+            echo "===== Processing $TAG ====="
+
+            # Clone upstream at tag
+            rm -rf _upstream
+            git clone --depth 1 --branch "$TAG" "${{ steps.upstream.outputs.url }}" _upstream
+
+            # Ensure we're on main and up to date
+            git checkout main
+            git pull --ff-only || true
+
+            # Clean payload but keep control files
+            find . -maxdepth 1 -mindepth 1 \
+              ! -name ".git" \
+              ! -name ".github" \
+              ! -name ".gpm" \
+              ! -name "${PACKAGE_JSON}" \
+              ! -name "README.md" \
+              ! -name "NOTICE-GPM.txt" \
+              ! -name "CHANGES-GPM.md" \
+              -exec rm -rf {} +
+
+            # Unwrap upstream Assets/Adjust/* → repo root (your layout)
+            SRC="_upstream/Assets/Adjust"
+            if [ ! -d "$SRC" ]; then
+              echo "::error::Expected $SRC not found for $TAG"
+              exit 1
+            fi
+            shopt -s dotglob
+            cp -R "$SRC/"* ./
+
+            # LICENSE + optional NOTICE
+            [ -f "_upstream/LICENSE" ] && cp _upstream/LICENSE LICENSE || true
+            [ -f "_upstream/NOTICE"  ] && cp _upstream/NOTICE  NOTICE  || true
+
+            # Ensure package.json exists
+            if [ ! -f "${PACKAGE_JSON}" ]; then
+              echo "::error::${PACKAGE_JSON} missing at repo root."
+              exit 1
+            fi
+
+            # Set UPM name and bump version: X.Y.Z-gpm.1
+            BASE="${TAG#v}"
+            VER="${BASE}-gpm.1"
+            jq --arg name "${PACKAGE_NAME}" \
+               --arg disp "Adjust Unity SDK (GPM Mirror)" \
+               --arg ver "$VER" \
+               '.name=$name | .displayName=$disp | .version=$ver' \
+               "${PACKAGE_JSON}" > package.json.tmp && mv package.json.tmp "${PACKAGE_JSON}"
+
+            # Stamp provenance last_sync
+            ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            jq --arg ts "$ts" '.last_sync=$ts' .gpm/provenance.json > .gpm/provenance.json.tmp && mv .gpm/provenance.json.tmp .gpm/provenance.json
+
+            # Commit straight to main
+            git add -A
+            git commit -m "chore(sync): ${TAG} → ${VER} (auto)" || echo "no changes"
+            git push origin main
+
+            # Create/force tag v<version>
+            git tag -f "v${VER}"
+            git push -f origin "v${VER}"
+
+            # Skip publish if version exists
+            if npm view "${PACKAGE_NAME}@${VER}" version --registry=${{ env.REGISTRY }} >/dev/null 2>&1; then
+              echo "Version ${VER} already published — skipping publish."
+              continue
+            fi
+
+            # Pack + Publish
+            npm pack --json | tee pack.json
+            TARBALL="$(jq -r '.[0].filename' pack.json)"
+            echo "Tarball: $TARBALL"
+            npm publish --registry=${{ env.REGISTRY }}
+
+            # Optionally set dist-tag latest
+            # npm dist-tag add "${PACKAGE_NAME}@${VER}" latest --registry=${{ env.REGISTRY }}
+
+            echo "===== Done $TAG → ${VER} ====="
+          done < /tmp/work.txt
