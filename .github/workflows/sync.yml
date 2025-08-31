@@ -77,20 +77,26 @@ jobs:
           set -e
           if [ -n "$TAG_OVERRIDE" ]; then
             echo "$TAG_OVERRIDE" > /tmp/work.txt
+            echo "has_work=true" >> $GITHUB_OUTPUT
           else
             # Local base tags are like vX.Y.Z (strip -gpm.* when comparing)
             git tag -l | sed 's/-gpm\..*$//' | sort -u -Vr > /tmp/local_base_tags.txt || true
             awk 'NR==FNR{have[$0]=1; next} {t=$0; if(!(t in have)) print t}' /tmp/local_base_tags.txt /tmp/upstream_tags.txt > /tmp/missing.txt
             head -n "${MAX_TAGS:-3}" /tmp/missing.txt > /tmp/work.txt
+            if [ -s /tmp/work.txt ]; then
+              echo "has_work=true" >> $GITHUB_OUTPUT
+            else
+              echo "has_work=false" >> $GITHUB_OUTPUT
+            fi
           fi
           echo "Has work?"; test -s /tmp/work.txt && echo yes || echo no
 
       - name: Nothing to do
-        if: ${{ !hashFiles('/tmp/work.txt') }}
+        if: ${{ steps.work.outputs.has_work != 'true' }}
         run: echo "No missing upstream tags."
 
       - name: Process each tag (sync → commit → tag → publish)
-        if: ${{ hashFiles('/tmp/work.txt') }}
+        if: ${{ steps.work.outputs.has_work == 'true' }}
         env:
           GPM_TOKEN: ${{ secrets.GPM_TOKEN }}
         run: |
