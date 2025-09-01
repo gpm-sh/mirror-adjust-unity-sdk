@@ -13,8 +13,6 @@ namespace AdjustSdk
         public bool? IsCostDataInAttributionEnabled { get; set; }
         public bool? IsDeviceIdsReadingOnceEnabled { get; set; }
         public bool? IsDeferredDeeplinkOpeningEnabled { get; set; }
-        public bool? IsAppTrackingTransparencyUsageEnabled { get; set; }
-        public bool? IsFirstSessionDelayEnabled { get; set; }
         public bool? AllowSuppressLogLevel { get; private set; }
         public bool? IsDataResidency { get; private set; }
         public bool? ShouldUseSubdomains { get; private set; }
@@ -22,7 +20,6 @@ namespace AdjustSdk
         public List<string> UrlStrategyDomains { get; private set; }
         public AdjustLogLevel? LogLevel { get; set; }
         public AdjustEnvironment Environment { get; private set; }
-        public AdjustStoreInfo StoreInfo { get; set; }
         public Action<AdjustAttribution> AttributionChangedDelegate { get; set; }
         public Action<AdjustEventSuccess> EventSuccessDelegate { get; set; }
         public Action<AdjustEventFailure> EventFailureDelegate { get; set; }
@@ -34,7 +31,6 @@ namespace AdjustSdk
         // iOS specific
         public bool? IsAdServicesEnabled { get; set; }
         public bool? IsIdfaReadingEnabled { get; set; }
-        public bool? IsIdfvReadingEnabled { get; set; }
         public bool? IsSkanAttributionEnabled { get; set; }
         public bool? IsLinkMeEnabled { get; set; }
         public int? AttConsentWaitingInterval { get; set; }

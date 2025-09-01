@@ -8,7 +8,7 @@ namespace AdjustSdk
 #if UNITY_IOS
     public class AdjustiOS
     {
-        private const string sdkPrefix = "unity5.4.2";
+        private const string sdkPrefix = "unity5.1.0";
 
         // app callbacks as method parameters
         private static List<Action<bool>> appIsEnabledGetterCallbacks;
@@ -19,10 +19,8 @@ namespace AdjustSdk
         private static List<Action<string>> appLastDeeplinkGetterCallbacks;
         private static List<Action<string>> appSdkVersionGetterCallbacks;
         private static List<Action<int>> appAttCallbacks;
-        private static Dictionary<int, Action<AdjustPurchaseVerificationResult>> appPurchaseVerificationCallbacks;
-        private static Dictionary<int, Action<AdjustPurchaseVerificationResult>> appVerifyAndTrackCallbacks;
-        private static int nextPurchaseVerificationCallbackId = 0;
-        private static int nextVerifyAndTrackCallbackId = 0;
+        private static Action<AdjustPurchaseVerificationResult> appPurchaseVerificationCallback;
+        private static Action<AdjustPurchaseVerificationResult> appVerifyAndTrackCallback;
         private static Action<string> appResolvedDeeplinkCallback;
         private static Action<string> appSkanErrorCallback;
 
@@ -51,8 +49,6 @@ namespace AdjustSdk
             string defaultTracker,
             string externalDeviceId,
             string jsonUrlStrategyDomains,
-            string storeName,
-            string storeAppId,
             int allowSuppressLogLevel,
             int logLevel,
             int attConsentWaitingInterval,
@@ -63,13 +59,10 @@ namespace AdjustSdk
             int isSendingInBackgroundEnabled,
             int isAdServicesEnabled,
             int isIdfaReadingEnabled,
-            int isIdfvReadingEnabled,
             int isSkanAttributionEnabled,
             int isLinkMeEnabled,
             int isCostDataInAttributionEnabled,
             int isDeviceIdsReadingOnceEnabled,
-            int isAppTrackingTransparencyUsageEnabled,
-            int isFirstSessionDelayEnabled,
             int isDeferredDeeplinkOpeningEnabled,
             AdjustDelegateAttributionCallback attributionCallback,
             AdjustDelegateEventSuccessCallback eventSuccessCallback,
@@ -107,7 +100,7 @@ namespace AdjustSdk
         private static extern void _AdjustSetPushToken(string pushToken);
 
         [DllImport("__Internal")]
-        private static extern void _AdjustProcessDeeplink(string deeplink, string referrer);
+        private static extern void _AdjustProcessDeeplink(string deeplink);
 
         private delegate void AdjustDelegateResolvedDeeplinkCallback(string deeplink);
         [DllImport("__Internal")]
@@ -231,15 +224,14 @@ namespace AdjustSdk
         [DllImport("__Internal")]
         private static extern void _AdjustTrackSubsessionEnd();
 
-        private delegate void AdjustDelegatePurchaseVerificationCallback(string verificationResult, int callbackId);
+        private delegate void AdjustDelegatePurchaseVerificationCallback(string verificationResult);
         [DllImport("__Internal")]
         private static extern void _AdjustVerifyAppStorePurchase(
             string transactionId,
             string productId,
-            int callbackId,
             AdjustDelegatePurchaseVerificationCallback callback);
 
-        private delegate void AdjustDelegateVerifyAndTrackCallback(string verificationResult, int callbackId);
+        private delegate void AdjustDelegateVerifyAndTrackCallback(string verificationResult);
         [DllImport("__Internal")]
         private static extern void _AdjustVerifyAndTrackAppStorePurchase(
             string eventToken,
@@ -251,20 +243,7 @@ namespace AdjustSdk
             string deduplicationId,
             string jsonCallbackParameters,
             string jsonPartnerParameters,
-            int verificationCallbackId,
-            AdjustDelegateVerifyAndTrackCallback callback);
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustEndFirstSessionDelay();
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustEnableCoppaComplianceInDelay();
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustDisableCoppaComplianceInDelay();
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustSetExternalDeviceIdInDelay(string externalDeviceId);
+            AdjustDelegatePurchaseVerificationCallback callback);
 
         // public API
         public AdjustiOS() {}
@@ -277,13 +256,6 @@ namespace AdjustSdk
             string externalDeviceId = adjustConfig.ExternalDeviceId != null ? adjustConfig.ExternalDeviceId : "ADJ_INVALID";
             string stringJsonUrlStrategyDomains = AdjustUtils.ConvertReadOnlyCollectionToJson(
                 adjustConfig.UrlStrategyDomains != null ? adjustConfig.UrlStrategyDomains.AsReadOnly() : null);
-            string storeName = "ADJ_INVALID";
-            string storeAppId = "ADJ_INVALID";
-            if (adjustConfig.StoreInfo != null)
-            {
-                storeName = adjustConfig.StoreInfo.StoreName != null ? adjustConfig.StoreInfo.StoreName : "ADJ_INVALID";
-                storeAppId = adjustConfig.StoreInfo.StoreAppId != null ? adjustConfig.StoreInfo.StoreAppId : "ADJ_INVALID";
-            }
             int attConsentWaitingInterval = AdjustUtils.ConvertInt(adjustConfig.AttConsentWaitingInterval);
             int eventDeduplicationIdsMaxSize = AdjustUtils.ConvertInt(adjustConfig.EventDeduplicationIdsMaxSize);
             int logLevel = AdjustUtils.ConvertLogLevel(adjustConfig.LogLevel);
@@ -291,15 +263,12 @@ namespace AdjustSdk
             int isSendingInBackgroundEnabled = AdjustUtils.ConvertBool(adjustConfig.IsSendingInBackgroundEnabled);
             int isAdServicesEnabled = AdjustUtils.ConvertBool(adjustConfig.IsAdServicesEnabled);
             int isIdfaReadingEnabled = AdjustUtils.ConvertBool(adjustConfig.IsIdfaReadingEnabled);
-            int isIdfvReadingEnabled = AdjustUtils.ConvertBool(adjustConfig.IsIdfvReadingEnabled);
             int allowSuppressLogLevel = AdjustUtils.ConvertBool(adjustConfig.AllowSuppressLogLevel);
             int isDeferredDeeplinkOpeningEnabled = AdjustUtils.ConvertBool(adjustConfig.IsDeferredDeeplinkOpeningEnabled);
             int isSkanAttributionEnabled = AdjustUtils.ConvertBool(adjustConfig.IsSkanAttributionEnabled);
             int isLinkMeEnabled = AdjustUtils.ConvertBool(adjustConfig.IsLinkMeEnabled);
             int isCostDataInAttributionEnabled = AdjustUtils.ConvertBool(adjustConfig.IsCostDataInAttributionEnabled);
             int isDeviceIdsReadingOnceEnabled = AdjustUtils.ConvertBool(adjustConfig.IsDeviceIdsReadingOnceEnabled);
-            int isAppTrackingTransparencyUsageEnabled = AdjustUtils.ConvertBool(adjustConfig.IsAppTrackingTransparencyUsageEnabled);
-            int isFirstSessionDelayEnabled = AdjustUtils.ConvertBool(adjustConfig.IsFirstSessionDelayEnabled);
             int shouldUseSubdomains = AdjustUtils.ConvertBool(adjustConfig.ShouldUseSubdomains);
             int isDataResidency = AdjustUtils.ConvertBool(adjustConfig.IsDataResidency);
             appAttributionCallback = adjustConfig.AttributionChangedDelegate;
@@ -317,8 +286,6 @@ namespace AdjustSdk
                 defaultTracker,
                 externalDeviceId,
                 stringJsonUrlStrategyDomains,
-                storeName,
-                storeAppId,
                 allowSuppressLogLevel,
                 logLevel,
                 attConsentWaitingInterval,
@@ -329,13 +296,10 @@ namespace AdjustSdk
                 isSendingInBackgroundEnabled,
                 isAdServicesEnabled,
                 isIdfaReadingEnabled,
-                isIdfvReadingEnabled,
                 isSkanAttributionEnabled,
                 isLinkMeEnabled,
                 isCostDataInAttributionEnabled,
                 isDeviceIdsReadingOnceEnabled,
-                isAppTrackingTransparencyUsageEnabled,
-                isFirstSessionDelayEnabled,
                 isDeferredDeeplinkOpeningEnabled,
                 AttributionCallbackMonoPInvoke,
                 EventSuccessCallbackMonoPInvoke,
@@ -392,7 +356,7 @@ namespace AdjustSdk
 
         public static void ProcessDeeplink(AdjustDeeplink adjustDeeplink)
         {
-            _AdjustProcessDeeplink(adjustDeeplink.Deeplink, adjustDeeplink.Referrer);
+            _AdjustProcessDeeplink(adjustDeeplink.Deeplink);
         }
 
         public static void AddGlobalPartnerParameter(string key, string value)
@@ -602,19 +566,11 @@ namespace AdjustSdk
         {
             string transactionId = purchase.TransactionId;
             string productId = purchase.ProductId;
-            
-            if (appPurchaseVerificationCallbacks == null)
-            {
-                appPurchaseVerificationCallbacks = new Dictionary<int, Action<AdjustPurchaseVerificationResult>>();
-            }
-            
-            int callbackId = ++nextPurchaseVerificationCallbackId;
-            appPurchaseVerificationCallbacks[callbackId] = callback;
+            appPurchaseVerificationCallback = callback;
             
             _AdjustVerifyAppStorePurchase(
                 transactionId,
                 productId,
-                callbackId,
                 PurchaseVerificationCallbackMonoPInvoke);
         }
 
@@ -637,14 +593,7 @@ namespace AdjustSdk
             string deduplicationId = adjustEvent.DeduplicationId;
             string stringJsonCallbackParameters = AdjustUtils.ConvertReadOnlyCollectionOfPairsToJson(adjustEvent.CallbackParameters);
             string stringJsonPartnerParameters = AdjustUtils.ConvertReadOnlyCollectionOfPairsToJson(adjustEvent.PartnerParameters);
-            
-            if (appVerifyAndTrackCallbacks == null)
-            {
-                appVerifyAndTrackCallbacks = new Dictionary<int, Action<AdjustPurchaseVerificationResult>>();
-            }
-            
-            int verificationCallbackId = ++nextVerifyAndTrackCallbackId;
-            appVerifyAndTrackCallbacks[verificationCallbackId] = callback;
+            appVerifyAndTrackCallback = callback;
 
             _AdjustVerifyAndTrackAppStorePurchase(
                 eventToken,
@@ -656,28 +605,7 @@ namespace AdjustSdk
                 deduplicationId,
                 stringJsonCallbackParameters,
                 stringJsonPartnerParameters,
-                verificationCallbackId,
                 VerifyAndTrackCallbackMonoPInvoke);
-        }
-
-        public static void EndFirstSessionDelay()
-        {
-            _AdjustEndFirstSessionDelay();
-        }
-
-        public static void EnableCoppaComplianceInDelay()
-        {
-            _AdjustEnableCoppaComplianceInDelay();
-        }
-
-        public static void DisableCoppaComplianceInDelay()
-        {
-            _AdjustDisableCoppaComplianceInDelay();
-        }
-
-        public static void SetExternalDeviceIdInDelay(string externalDeviceId)
-        {
-            _AdjustSetExternalDeviceIdInDelay(externalDeviceId);
         }
 
         // used for testing only (don't use this in your app)
@@ -934,47 +862,37 @@ namespace AdjustSdk
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegatePurchaseVerificationCallback))]
-        private static void PurchaseVerificationCallbackMonoPInvoke(string verificationResult, int callbackId)
+        private static void PurchaseVerificationCallbackMonoPInvoke(string verificationResult)
         {
-            if (appPurchaseVerificationCallbacks == null || !appPurchaseVerificationCallbacks.ContainsKey(callbackId))
+            if (appPurchaseVerificationCallback == null)
             {
                 return;
             }
 
             AdjustThreadDispatcher.RunOnMainThread(() =>
             {
-                if (appPurchaseVerificationCallbacks != null && appPurchaseVerificationCallbacks.ContainsKey(callbackId))
+                if (appPurchaseVerificationCallback != null)
                 {
-                    Action<AdjustPurchaseVerificationResult> callback = appPurchaseVerificationCallbacks[callbackId];
-                    appPurchaseVerificationCallbacks.Remove(callbackId);
-                    
-                    if (callback != null)
-                    {
-                        callback.Invoke(new AdjustPurchaseVerificationResult(verificationResult));
-                    }
+                    appPurchaseVerificationCallback.Invoke(new AdjustPurchaseVerificationResult(verificationResult));
+                    appPurchaseVerificationCallback = null;
                 }
             });
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateVerifyAndTrackCallback))]
-        private static void VerifyAndTrackCallbackMonoPInvoke(string verificationResult, int callbackId)
+        private static void VerifyAndTrackCallbackMonoPInvoke(string verificationResult)
         {
-            if (appVerifyAndTrackCallbacks == null || !appVerifyAndTrackCallbacks.ContainsKey(callbackId))
+            if (appVerifyAndTrackCallback == null)
             {
                 return;
             }
 
             AdjustThreadDispatcher.RunOnMainThread(() =>
             {
-                if (appVerifyAndTrackCallbacks != null && appVerifyAndTrackCallbacks.ContainsKey(callbackId))
+                if (appVerifyAndTrackCallback != null)
                 {
-                    Action<AdjustPurchaseVerificationResult> callback = appVerifyAndTrackCallbacks[callbackId];
-                    appVerifyAndTrackCallbacks.Remove(callbackId);
-                    
-                    if (callback != null)
-                    {
-                        callback.Invoke(new AdjustPurchaseVerificationResult(verificationResult));
-                    }
+                    appVerifyAndTrackCallback.Invoke(new AdjustPurchaseVerificationResult(verificationResult));
+                    appVerifyAndTrackCallback = null;
                 }
             });
         }
