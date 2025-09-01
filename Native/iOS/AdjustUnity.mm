@@ -88,6 +88,8 @@ extern "C"
         const char* defaultTracker,
         const char* externalDeviceId,
         const char* jsonUrlStrategyDomains,
+        const char* storeName,
+        const char* storeAppId,
         int allowSuppressLogLevel,
         int logLevel,
         int attConsentWaitingInterval,
@@ -98,10 +100,13 @@ extern "C"
         int isSendingInBackgroundEnabled,
         int isAdServicesEnabled,
         int isIdfaReadingEnabled,
+        int isIdfvReadingEnabled,
         int isSkanAttributionEnabled,
         int isLinkMeEnabled,
         int isCostDataInAttributionEnabled,
         int isDeviceIdsReadingOnceEnabled,
+        int isAppTrackingTransparencyUsageEnabled,
+        int isFirstSessionDelayEnabled,
         int isDeferredDeeplinkOpeningEnabled,
         AdjustDelegateAttributionCallback attributionCallback,
         AdjustDelegateEventSuccessCallback eventSuccessCallback,
@@ -115,6 +120,8 @@ extern "C"
         NSString *strSdkPrefix = isStringValid(sdkPrefix) == true ? [NSString stringWithUTF8String:sdkPrefix] : nil;
         NSString *strDefaultTracker = isStringValid(defaultTracker) == true ? [NSString stringWithUTF8String:defaultTracker] : nil;
         NSString *strExternalDeviceId = isStringValid(externalDeviceId) == true ? [NSString stringWithUTF8String:externalDeviceId] : nil;
+        NSString *strStoreName = isStringValid(storeName) == true ? [NSString stringWithUTF8String:storeName] : nil;
+        NSString *strStoreAppId = isStringValid(storeAppId) == true ? [NSString stringWithUTF8String:storeAppId] : nil;
 
         ADJConfig *adjustConfig;
 
@@ -189,6 +196,13 @@ extern "C"
             }
         }
 
+        // IDFV reading
+        if (isIdfvReadingEnabled != -1) {
+            if ((BOOL)isIdfvReadingEnabled == NO) {
+                [adjustConfig disableIdfvReading];
+            }
+        }
+
         // LinkMe
         if (isLinkMeEnabled != -1) {
             if ((BOOL)isLinkMeEnabled == YES) {
@@ -199,6 +213,20 @@ extern "C"
         // ATT dialog delay
         if (attConsentWaitingInterval != -1) {
             [adjustConfig setAttConsentWaitingInterval:attConsentWaitingInterval];
+        }
+
+        // disable AppTrackingTransparency.framework interaction
+        if (isAppTrackingTransparencyUsageEnabled != -1) {
+            if ((BOOL)isAppTrackingTransparencyUsageEnabled == NO) {
+                [adjustConfig disableAppTrackingTransparencyUsage];
+            }
+        }
+
+        // first session delay
+        if (isFirstSessionDelayEnabled != -1) {
+            if ((BOOL)isFirstSessionDelayEnabled == YES) {
+                [adjustConfig enableFirstSessionDelay];
+            }
         }
 
         // deduplication IDs max number
@@ -238,6 +266,15 @@ extern "C"
                                useSubdomains:(BOOL)shouldUseSubdomains
                              isDataResidency:(BOOL)isDataResidency];
             }
+        }
+
+        // custom store
+        if (strStoreName != nil) {
+            ADJStoreInfo *storeInfo = [[ADJStoreInfo alloc] initWithStoreName:strStoreName];
+            if (strStoreAppId != nil) {
+                [storeInfo setStoreAppId:strStoreAppId];
+            }
+            [adjustConfig setStoreInfo:storeInfo];
         }
 
         // initialize the SDK
@@ -343,12 +380,18 @@ extern "C"
         }
     }
 
-    void _AdjustProcessDeeplink(const char* deeplink) {
+    void _AdjustProcessDeeplink(const char* deeplink, const char* referrer) {
         if (deeplink != NULL) {
             NSString *strDeeplink = [NSString stringWithUTF8String:deeplink];
             NSURL *urlDeeplink = [NSURL URLWithString:strDeeplink];
-            ADJDeeplink *deeplink = [[ADJDeeplink alloc] initWithDeeplink:urlDeeplink];
-            [Adjust processDeeplink:deeplink];
+            ADJDeeplink *adjustDeeplink = [[ADJDeeplink alloc] initWithDeeplink:urlDeeplink];
+
+            if (referrer != NULL) {
+                NSString *strReferrer = [NSString stringWithUTF8String:referrer];
+                NSURL *urlReferrer = [NSURL URLWithString:strReferrer];
+                [adjustDeeplink setReferrer:urlReferrer];
+            }
+            [Adjust processDeeplink:adjustDeeplink];
         }
     }
 
@@ -677,6 +720,7 @@ extern "C"
 
     void _AdjustVerifyAppStorePurchase(const char* transactionId,
                                        const char* productId,
+                                       int callbackId,
                                        AdjustDelegatePurchaseVerificationCallback callback) {
         NSString *strTransactionId;
         NSString *strProductId;
@@ -711,7 +755,7 @@ extern "C"
                                                                      length:[dataVerificationInfo length]
                                                                    encoding:NSUTF8StringEncoding];
             const char* verificationInfoCString = [strVerificationInfo UTF8String];
-            callback(verificationInfoCString);
+            callback(verificationInfoCString, callbackId);
         }];
     }
 
@@ -738,6 +782,7 @@ extern "C"
         const char* deduplicationId,
         const char* jsonCallbackParameters,
         const char* jsonPartnerParameters,
+        int verificationCallbackId,
         AdjustDelegateVerifyAndTrackCallback callback) {
         NSString *strEventToken = isStringValid(eventToken) == true ? [NSString stringWithUTF8String:eventToken] : nil;
         ADJEvent *event = [[ADJEvent alloc] initWithEventToken:strEventToken];
@@ -809,8 +854,27 @@ extern "C"
                                                                      length:[dataVerificationInfo length]
                                                                    encoding:NSUTF8StringEncoding];
             const char* verificationInfoCString = [strVerificationInfo UTF8String];
-            callback(verificationInfoCString);
+            callback(verificationInfoCString, verificationCallbackId);
         }];
+    }
+
+    void _AdjustEndFirstSessionDelay() {
+        [Adjust endFirstSessionDelay];
+    }
+
+    void _AdjustEnableCoppaComplianceInDelay() {
+        [Adjust enableCoppaComplianceInDelay];
+    }
+
+    void _AdjustDisableCoppaComplianceInDelay() {
+        [Adjust disableCoppaComplianceInDelay];
+    }
+
+    void _AdjustSetExternalDeviceIdInDelay(const char* externalDeviceId) {
+        if (externalDeviceId != NULL) {
+            NSString *strExternalDeviceId = [NSString stringWithUTF8String:externalDeviceId];
+            [Adjust setExternalDeviceIdInDelay:strExternalDeviceId];
+        }
     }
 
     void _AdjustSetTestOptions(const char* overwriteUrl,
