@@ -16,7 +16,7 @@ NOTICE-GPM.txt
 LICENCE
 
 # Unity Editor specific files that shouldn't be in UPM packages
-#*.meta
+*.meta
 
 # NPM artifacts
 *.tgz
