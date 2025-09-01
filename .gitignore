@@ -1,0 +1,8 @@
+# NPM package files
+*.tgz
+
+# Unity meta files for GPM artifacts (keep original ones)
+/com.adjust.sdk*.asmdef.meta
+
+# Temporary files
+*.tmp

@@ -20,7 +20,7 @@ permissions:
 env:
   UPSTREAM_URL_FILE: .gpm/upstream.url
   PACKAGE_JSON: package.json
-  PACKAGE_NAME: com.adjust.unity
+  PACKAGE_NAME: com.adjust.sdk
   REGISTRY: https://registry.gpm.sh
 
 jobs:
@@ -40,6 +40,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          
+      - name: Configure git identity
+        run: |
+          git config --global user.name "GPM Mirror Bot"
+          git config --global user.email "gpm-mirror@gpm.sh"
 
       - name: Configure npm auth
         run: |
@@ -125,14 +130,10 @@ jobs:
               ! -name "CHANGES-GPM.md" \
               ! -name "LICENSE" \
               ! -name "LICENCE" \
+              ! -name ".gitignore" \
               -exec rm -rf {} +
 
-            # Debug: Check upstream structure
-            echo "=== Upstream directory structure ==="
-            ls -la _upstream/
-            echo "=== Assets directory ==="
-            ls -la _upstream/Assets/
-            
+
             # Unwrap upstream Assets/Adjust/* → repo root (your layout)
             SRC="_upstream/Assets/Adjust"
             if [ ! -d "$SRC" ]; then
@@ -147,6 +148,33 @@ jobs:
             # LICENSE + optional NOTICE
             [ -f "_upstream/LICENSE" ] && cp _upstream/LICENSE LICENSE || true
             [ -f "_upstream/NOTICE"  ] && cp _upstream/NOTICE  NOTICE  || true
+
+            # Update existing asmdefs with GPM-specific naming
+            echo "Updating assembly definitions for GPM..."
+            
+            # Update Runtime asmdef if it exists
+            if [ -f "Scripts/AdjustSdk.Scripts.asmdef" ]; then
+              echo "Updating runtime asmdef..."
+              jq '.name = "com.adjust.sdk"' Scripts/AdjustSdk.Scripts.asmdef > Scripts/com.adjust.sdk.asmdef
+              rm -f Scripts/AdjustSdk.Scripts.asmdef Scripts/AdjustSdk.Scripts.asmdef.meta
+            fi
+            
+            # Update Editor asmdef if it exists
+            if [ -f "Scripts/Editor/AdjustSdk.Editor.asmdef" ]; then
+              echo "Updating editor asmdef..."
+              jq '.name = "com.adjust.sdk.editor" | .references = ["com.adjust.sdk"]' Scripts/Editor/AdjustSdk.Editor.asmdef > Scripts/Editor/com.adjust.sdk.editor.asmdef
+              rm -f Scripts/Editor/AdjustSdk.Editor.asmdef Scripts/Editor/AdjustSdk.Editor.asmdef.meta
+            fi
+
+            # Create/update .gitignore to exclude build artifacts
+            echo "# NPM package files" > .gitignore
+            echo "*.tgz" >> .gitignore
+            echo "" >> .gitignore
+            echo "# Unity meta files for GPM artifacts (keep original ones)" >> .gitignore
+            echo "/com.adjust.sdk*.asmdef.meta" >> .gitignore
+            echo "" >> .gitignore
+            echo "# Temporary files" >> .gitignore
+            echo "*.tmp" >> .gitignore
 
             # Ensure package.json exists
             if [ ! -f "${PACKAGE_JSON}" ]; then

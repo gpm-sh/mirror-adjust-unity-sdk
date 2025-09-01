@@ -1,21 +1,28 @@
 package:
-  id: "registry.gpm.sh/com.adjust.unity"
+  id: "registry.gpm.sh/com.adjust.sdk"
   displayName: "Adjust Unity SDK (GPM Mirror)"
-  upstreamLayout: "unitypackage"
+  upstreamLayout: "upm"
   repack:
     toUPM: true
+    source: "Assets/Adjust"
     map:
-      "Assets/Adjust/Runtime": "Packages/com.adjust.unity/Runtime"
-      "Assets/Adjust/Editor":  "Packages/com.adjust.unity/Editor"
+      "Scripts": "Runtime"
+      "Scripts/Editor": "Editor"
   asmdef:
     runtime:
-      name: "com.adjust.unity"
+      name: "com.adjust.sdk"
       references: []
       includePlatforms: []
+      excludePlatforms: []
+      allowUnsafeCode: false
+      autoReferenced: true
     editor:
-      name: "com.adjust.unity.editor"
-      references: ["com.adjust.unity"]
+      name: "com.adjust.sdk.editor"
+      references: ["com.adjust.sdk"]
       includePlatforms: ["Editor"]
+      excludePlatforms: []
+      allowUnsafeCode: false
+      autoReferenced: true
   versioning:
     scheme: "suffix"
     suffix: "-gpm.1"
