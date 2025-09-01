@@ -6,3 +6,11 @@
 
 # Temporary files
 *.tmp
+*.log
+
+# Build artifacts
+pack.json
+*.tmp
+
+# Temporary directories
+_upstream/
