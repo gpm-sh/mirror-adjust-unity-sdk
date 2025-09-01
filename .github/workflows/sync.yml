@@ -158,6 +158,16 @@ jobs:
               echo "Updating runtime asmdef..."
               jq '.name = "com.adjust.sdk"' Scripts/AdjustSdk.Scripts.asmdef > Scripts/com.adjust.sdk.asmdef
               rm -f Scripts/AdjustSdk.Scripts.asmdef Scripts/AdjustSdk.Scripts.asmdef.meta
+              
+              # Generate meta file for new asmdef
+              GUID=$(uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '-')
+              echo "fileFormatVersion: 2" > Scripts/com.adjust.sdk.asmdef.meta
+              echo "guid: $GUID" >> Scripts/com.adjust.sdk.asmdef.meta
+              echo "AssemblyDefinitionImporter:" >> Scripts/com.adjust.sdk.asmdef.meta
+              echo "  externalObjects: {}" >> Scripts/com.adjust.sdk.asmdef.meta
+              echo "  userData:" >> Scripts/com.adjust.sdk.asmdef.meta
+              echo "  assetBundleName:" >> Scripts/com.adjust.sdk.asmdef.meta
+              echo "  assetBundleVariant:" >> Scripts/com.adjust.sdk.asmdef.meta
             fi
             
             # Update Editor asmdef if it exists
@@ -165,6 +175,16 @@ jobs:
               echo "Updating editor asmdef..."
               jq '.name = "com.adjust.sdk.editor" | .references = ["com.adjust.sdk"]' Scripts/Editor/AdjustSdk.Editor.asmdef > Scripts/Editor/com.adjust.sdk.editor.asmdef
               rm -f Scripts/Editor/AdjustSdk.Editor.asmdef Scripts/Editor/AdjustSdk.Editor.asmdef.meta
+              
+              # Generate meta file for new asmdef
+              GUID=$(uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '-')
+              echo "fileFormatVersion: 2" > Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
+              echo "guid: $GUID" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
+              echo "AssemblyDefinitionImporter:" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
+              echo "  externalObjects: {}" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
+              echo "  userData:" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
+              echo "  assetBundleName:" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
+              echo "  assetBundleVariant:" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
             fi
 
             # Create/update .gitignore to exclude build artifacts
