@@ -51,12 +51,13 @@ namespace AdjustSdk
             this.CostCurrency = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyCostCurrency);
             this.FbInstallReferrer = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyFbInstallReferrer);
 
-            var jsonResponseValue = jsonNode[AdjustUtils.KeyJsonResponse];
-            if (jsonResponseValue == null)
+            string jsonResponseString = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyJsonResponse);
+            var jsonResponseNode = JSON.Parse(jsonResponseString);
+            if (jsonResponseNode != null && jsonResponseNode.AsObject != null)
             {
-                return;
+                this.JsonResponse = new Dictionary<string, object>();
+                AdjustUtils.WriteJsonResponseDictionary(jsonResponseNode.AsObject, this.JsonResponse);
             }
-            this.JsonResponse = AdjustUtils.GetAttributionJsonResponse(jsonResponseValue);
         }
 
         public AdjustAttribution(Dictionary<string, string> dicAttributionData)
@@ -87,31 +88,6 @@ namespace AdjustSdk
             }
             this.CostCurrency = AdjustUtils.TryGetValue(dicAttributionData, AdjustUtils.KeyCostCurrency);
             this.FbInstallReferrer = AdjustUtils.TryGetValue(dicAttributionData, AdjustUtils.KeyFbInstallReferrer);
-
-            string jsonResponseString = AdjustUtils.TryGetValue(dicAttributionData, AdjustUtils.KeyJsonResponse);
-            var jsonResponseNode = JSON.Parse(jsonResponseString);
-            if (jsonResponseNode != null && jsonResponseNode.AsObject != null)
-            {
-                this.JsonResponse = new Dictionary<string, object>();
-                AdjustUtils.WriteJsonResponseDictionary(jsonResponseNode.AsObject, this.JsonResponse);
-            }
-        }
-
-        public void BuildJsonResponseFromString(string jsonResponseString)
-        {
-            var jsonNode = JSON.Parse(jsonResponseString);
-            if (jsonNode == null)
-            {
-                return;
-            }
-
-            this.JsonResponse = new Dictionary<string, object>();
-            AdjustUtils.WriteJsonResponseDictionary(jsonNode.AsObject, JsonResponse);
-        }
-
-        public string GetJsonResponseAsString()
-        {
-            return AdjustUtils.GetJsonResponseCompact(JsonResponse);
         }
     }
 }

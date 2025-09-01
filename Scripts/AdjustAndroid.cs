@@ -8,7 +8,7 @@ namespace AdjustSdk
 #if UNITY_ANDROID
     public class AdjustAndroid
     {
-        private const string sdkPrefix = "unity5.1.3";
+        private const string sdkPrefix = "unity5.1.2";
         private static bool isDeferredDeeplinkOpeningEnabled = true;
         private static AndroidJavaClass ajcAdjust = new AndroidJavaClass("com.adjust.sdk.Adjust");
         private static AndroidJavaObject ajoCurrentActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
@@ -769,13 +769,11 @@ namespace AdjustSdk
                         }
 
                         string jsonResponse = ajoAttribution.Get<string>(AdjustUtils.KeyJsonResponse);
-                        if (jsonResponse != null) {
-                            var jsonResponseNode = JSON.Parse(jsonResponse);
-                            if (jsonResponseNode != null && jsonResponseNode.AsObject != null)
-                            {
-                                adjustAttribution.JsonResponse = new Dictionary<string, object>();
-                                AdjustUtils.WriteJsonResponseDictionary(jsonResponseNode.AsObject, adjustAttribution.JsonResponse);
-                            }
+                        var jsonResponseNode = JSON.Parse(jsonResponse);
+                        if (jsonResponseNode != null && jsonResponseNode.AsObject != null)
+                        {
+                            adjustAttribution.JsonResponse = new Dictionary<string, object>();
+                            AdjustUtils.WriteJsonResponseDictionary(jsonResponseNode.AsObject, adjustAttribution.JsonResponse);
                         }
 
                         if (callback != null)
@@ -1234,13 +1232,11 @@ namespace AdjustSdk
                         }
 
                         string jsonResponse = ajoAttribution.Get<string>(AdjustUtils.KeyJsonResponse);
-                        if (jsonResponse != null) {
-                            var jsonResponseNode = JSON.Parse(jsonResponse);
-                            if (jsonResponseNode != null && jsonResponseNode.AsObject != null)
-                            {
-                                adjustAttribution.JsonResponse = new Dictionary<string, object>();
-                                AdjustUtils.WriteJsonResponseDictionary(jsonResponseNode.AsObject, adjustAttribution.JsonResponse);
-                            }
+                        var jsonResponseNode = JSON.Parse(jsonResponse);
+                        if (jsonResponseNode != null && jsonResponseNode.AsObject != null)
+                        {
+                            adjustAttribution.JsonResponse = new Dictionary<string, object>();
+                            AdjustUtils.WriteJsonResponseDictionary(jsonResponseNode.AsObject, adjustAttribution.JsonResponse);
                         }
 
                         if (callback != null)
