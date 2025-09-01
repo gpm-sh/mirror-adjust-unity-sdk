@@ -1,11 +1,10 @@
 {
-    "upstream": "https://github.com/adjust/unity_sdk",
-    "license": "MIT",
-    "gpm_modifications": [
-      "Added Unity .asmdef files",
-      "Converted layout to UPM structure",
-      "Added package.json metadata"
-    ],
-    "last_sync": "1970-01-01T00:00:00Z"
-  }
-  
+  "upstream": "https://github.com/adjust/unity_sdk",
+  "license": "MIT",
+  "gpm_modifications": [
+    "Added Unity .asmdef files",
+    "Converted layout to UPM structure",
+    "Added package.json metadata"
+  ],
+  "last_sync": "2025-09-01T00:31:04Z"
+}

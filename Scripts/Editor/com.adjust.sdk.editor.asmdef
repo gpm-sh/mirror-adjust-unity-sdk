@@ -1,0 +1,10 @@
+{
+  "name": "com.adjust.sdk.editor",
+  "references": [
+    "com.adjust.sdk"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": []
+}
