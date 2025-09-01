@@ -15,8 +15,8 @@ NOTICE-GPM.txt
 # License files (LICENSE will be included automatically by npm)
 LICENCE
 
-# Unity Editor specific files that shouldn't be in UPM packages
-*.meta
+# Unity meta files are INCLUDED in UPM packages to preserve asset references
+# *.meta files are needed for proper Unity package integration
 
 # NPM artifacts
 *.tgz

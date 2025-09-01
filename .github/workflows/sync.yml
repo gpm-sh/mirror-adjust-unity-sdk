@@ -143,56 +143,30 @@ jobs:
               ls -la _upstream/Assets/ || true
               exit 1
             fi
+            
+            # Copy all files including .meta files (preserve Unity asset references)
+            echo "Copying all files including meta files from upstream..."
             shopt -s dotglob
             cp -R "$SRC/"* ./
+            
+            # Also copy the main Assets/Adjust.meta file if it exists
+            if [ -f "_upstream/Assets/Adjust.meta" ]; then
+              cp "_upstream/Assets/Adjust.meta" ./package.json.meta
+            fi
 
             # LICENSE + optional NOTICE
             [ -f "_upstream/LICENSE" ] && cp _upstream/LICENSE LICENSE || true
             [ -f "_upstream/NOTICE"  ] && cp _upstream/NOTICE  NOTICE  || true
 
-            # Update existing asmdefs with GPM-specific naming
-            echo "Updating assembly definitions for GPM..."
-            
-            # Update Runtime asmdef if it exists
-            if [ -f "Scripts/AdjustSdk.Scripts.asmdef" ]; then
-              echo "Updating runtime asmdef..."
-              jq '.name = "com.adjust.sdk"' Scripts/AdjustSdk.Scripts.asmdef > Scripts/com.adjust.sdk.asmdef
-              rm -f Scripts/AdjustSdk.Scripts.asmdef Scripts/AdjustSdk.Scripts.asmdef.meta
-              
-              # Generate meta file for new asmdef
-              GUID=$(uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '-')
-              echo "fileFormatVersion: 2" > Scripts/com.adjust.sdk.asmdef.meta
-              echo "guid: $GUID" >> Scripts/com.adjust.sdk.asmdef.meta
-              echo "AssemblyDefinitionImporter:" >> Scripts/com.adjust.sdk.asmdef.meta
-              echo "  externalObjects: {}" >> Scripts/com.adjust.sdk.asmdef.meta
-              echo "  userData:" >> Scripts/com.adjust.sdk.asmdef.meta
-              echo "  assetBundleName:" >> Scripts/com.adjust.sdk.asmdef.meta
-              echo "  assetBundleVariant:" >> Scripts/com.adjust.sdk.asmdef.meta
-            fi
-            
-            # Update Editor asmdef if it exists
-            if [ -f "Scripts/Editor/AdjustSdk.Editor.asmdef" ]; then
-              echo "Updating editor asmdef..."
-              jq '.name = "com.adjust.sdk.editor" | .references = ["com.adjust.sdk"]' Scripts/Editor/AdjustSdk.Editor.asmdef > Scripts/Editor/com.adjust.sdk.editor.asmdef
-              rm -f Scripts/Editor/AdjustSdk.Editor.asmdef Scripts/Editor/AdjustSdk.Editor.asmdef.meta
-              
-              # Generate meta file for new asmdef
-              GUID=$(uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '-')
-              echo "fileFormatVersion: 2" > Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
-              echo "guid: $GUID" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
-              echo "AssemblyDefinitionImporter:" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
-              echo "  externalObjects: {}" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
-              echo "  userData:" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
-              echo "  assetBundleName:" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
-              echo "  assetBundleVariant:" >> Scripts/Editor/com.adjust.sdk.editor.asmdef.meta
-            fi
+            # Keep original assembly definitions from upstream
+            echo "Preserving original assembly definitions and meta files from upstream..."
 
             # Create/update .gitignore to exclude build artifacts
             echo "# NPM package files" > .gitignore
             echo "*.tgz" >> .gitignore
             echo "" >> .gitignore
-            echo "# Unity meta files for GPM artifacts (keep original ones)" >> .gitignore
-            echo "/com.adjust.sdk*.asmdef.meta" >> .gitignore
+            echo "# All Unity meta files are preserved and committed" >> .gitignore
+            echo "# They are essential for proper Unity package integration" >> .gitignore
             echo "" >> .gitignore
             echo "# Temporary files" >> .gitignore
             echo "*.tmp" >> .gitignore
@@ -224,7 +198,7 @@ jobs:
             echo "LICENCE" >> .npmignore
             echo "" >> .npmignore
             echo "# Unity Editor specific files that shouldn't be in UPM packages" >> .npmignore
-            echo "*.meta" >> .npmignore
+            #echo "*.meta" >> .npmignore
             echo "" >> .npmignore
             echo "# NPM artifacts" >> .npmignore
             echo "*.tgz" >> .npmignore
