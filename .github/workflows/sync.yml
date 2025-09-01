@@ -175,6 +175,21 @@ jobs:
             echo "" >> .gitignore
             echo "# Temporary files" >> .gitignore
             echo "*.tmp" >> .gitignore
+            echo "*.log" >> .gitignore
+            echo "" >> .gitignore
+            echo "# Build artifacts" >> .gitignore
+            echo "pack.json" >> .gitignore
+            echo "*.tmp" >> .gitignore
+            echo "" >> .gitignore
+            echo "# Temporary directories" >> .gitignore
+            echo "_upstream/" >> .gitignore
+
+            # Clean up temporary and unnecessary files
+            echo "Cleaning up temporary files..."
+            rm -rf _upstream/
+            rm -f pack.json
+            rm -f package.json.tmp
+            rm -f .gpm/provenance.json.tmp
 
             # Ensure package.json exists
             if [ ! -f "${PACKAGE_JSON}" ]; then
@@ -215,6 +230,9 @@ jobs:
             TARBALL="$(jq -r '.[0].filename' pack.json)"
             echo "Tarball: $TARBALL"
             npm publish --registry=${{ env.REGISTRY }}
+            
+            # Clean up pack artifacts
+            rm -f pack.json
 
             # Optionally set dist-tag latest
             # npm dist-tag add "${PACKAGE_NAME}@${VER}" latest --registry=${{ env.REGISTRY }}
