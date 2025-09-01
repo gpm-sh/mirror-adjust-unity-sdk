@@ -131,6 +131,7 @@ jobs:
               ! -name "LICENSE" \
               ! -name "LICENCE" \
               ! -name ".gitignore" \
+              ! -name ".npmignore" \
               -exec rm -rf {} +
 
 
@@ -183,6 +184,37 @@ jobs:
             echo "" >> .gitignore
             echo "# Temporary directories" >> .gitignore
             echo "_upstream/" >> .gitignore
+
+            # Create/update .npmignore to control what gets published
+            echo "# Development and build files" > .npmignore
+            echo ".git/" >> .npmignore
+            echo ".github/" >> .npmignore
+            echo ".gpm/" >> .npmignore
+            echo "_upstream/" >> .npmignore
+            echo "*.log" >> .npmignore
+            echo "*.tmp" >> .npmignore
+            echo "pack.json" >> .npmignore
+            echo "" >> .npmignore
+            echo "# Documentation that shouldn't be in the package" >> .npmignore
+            echo "README.md" >> .npmignore
+            echo "CHANGES-GPM.md" >> .npmignore
+            echo "NOTICE-GPM.txt" >> .npmignore
+            echo "" >> .npmignore
+            echo "# License files (LICENSE will be included automatically by npm)" >> .npmignore
+            echo "LICENCE" >> .npmignore
+            echo "" >> .npmignore
+            echo "# Unity Editor specific files that shouldn't be in UPM packages" >> .npmignore
+            echo "*.meta" >> .npmignore
+            echo "" >> .npmignore
+            echo "# NPM artifacts" >> .npmignore
+            echo "*.tgz" >> .npmignore
+            echo "node_modules/" >> .npmignore
+            echo "" >> .npmignore
+            echo "# Temporary files" >> .npmignore
+            echo "*.temp" >> .npmignore
+            echo "*.bak" >> .npmignore
+            echo "*.swp" >> .npmignore
+            echo "*~" >> .npmignore
 
             # Clean up temporary and unnecessary files
             echo "Cleaning up temporary files..."

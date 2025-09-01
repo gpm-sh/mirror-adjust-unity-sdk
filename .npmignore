@@ -1,0 +1,29 @@
+# Development and build files
+.git/
+.github/
+.gpm/
+_upstream/
+*.log
+*.tmp
+pack.json
+
+# Documentation that shouldn't be in the package
+README.md
+CHANGES-GPM.md
+NOTICE-GPM.txt
+
+# License files (LICENSE will be included automatically by npm)
+LICENCE
+
+# Unity Editor specific files that shouldn't be in UPM packages
+*.meta
+
+# NPM artifacts
+*.tgz
+node_modules/
+
+# Temporary files
+*.temp
+*.bak
+*.swp
+*~
