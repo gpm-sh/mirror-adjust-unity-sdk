@@ -8,7 +8,7 @@ namespace AdjustSdk
 #if UNITY_IOS
     public class AdjustiOS
     {
-        private const string sdkPrefix = "unity5.1.0";
+        private const string sdkPrefix = "unity5.0.7";
 
         // app callbacks as method parameters
         private static List<Action<bool>> appIsEnabledGetterCallbacks;
@@ -694,345 +694,192 @@ namespace AdjustSdk
 
         // MonoPInvokeCallback methods as method parameters
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateIsEnabledGetter))]
-        private static void IsEnabledGetterMonoPInvoke(bool isEnabled)
-        {
-            if (appIsEnabledGetterCallbacks == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void IsEnabledGetterMonoPInvoke(bool isEnabled) {
+            if (appIsEnabledGetterCallbacks != null)
             {
                 foreach (Action<bool> callback in appIsEnabledGetterCallbacks)
                 {
-                    if (callback != null)
-                    {
-                        callback.Invoke(isEnabled);
-                    }
+                    callback(isEnabled);
                 }
                 appIsEnabledGetterCallbacks.Clear();
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateAttributionGetter))]
-        private static void AttributionGetterMonoPInvoke(string attribution)
-        {
-            if (appAttributionGetterCallbacks == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void AttributionGetterMonoPInvoke(string attribution) {
+            if (appAttributionGetterCallbacks != null)
             {
                 foreach (Action<AdjustAttribution> callback in appAttributionGetterCallbacks)
                 {
-                    if (callback != null)
-                    {
-                        callback.Invoke(new AdjustAttribution(attribution));
-                    }
+                    callback(new AdjustAttribution(attribution));    
                 }
                 appAttributionGetterCallbacks.Clear();
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateAdidGetter))]
-        private static void AdidGetterMonoPInvoke(string adid)
-        {
-            if (appAdidGetterCallbacks == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void AdidGetterMonoPInvoke(string adid) {
+            if (appAdidGetterCallbacks != null)
             {
                 foreach (Action<string> callback in appAdidGetterCallbacks)
                 {
-                    if (callback != null)
-                    {
-                        callback.Invoke(adid);
-                    }
+                    callback(adid);
                 }
                 appAdidGetterCallbacks.Clear();
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateIdfaGetter))]
-        private static void IdfaGetterMonoPInvoke(string idfa)
-        {
-            if (appIdfaGetterCallbacks == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void IdfaGetterMonoPInvoke(string idfa) {
+            if (appIdfaGetterCallbacks != null)
             {
                 foreach (Action<string> callback in appIdfaGetterCallbacks)
                 {
-                    if (callback != null)
-                    {
-                        callback.Invoke(idfa);
-                    }
+                    callback(idfa);
                 }
                 appIdfaGetterCallbacks.Clear();
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateIdfvGetter))]
-        private static void IdfvGetterMonoPInvoke(string idfv)
-        {
-            if (appIdfvGetterCallbacks == null)
+        private static void IdfvGetterMonoPInvoke(string idfv) {
+            if (appIdfvGetterCallbacks != null)
             {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
-            {
-                foreach (Action<string> callback in appIdfvGetterCallbacks)
+                foreach (Action<string> callback in appIdfaGetterCallbacks)
                 {
-                    if (callback != null)
-                    {
-                        callback.Invoke(idfv);
-                    }
+                    callback(idfv);
                 }
                 appIdfvGetterCallbacks.Clear();
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateLastDeeplinkGetter))]
-        private static void LastDeeplinkGetterMonoPInvoke(string lastDeeplink)
-        {
-            if (appLastDeeplinkGetterCallbacks == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void LastDeeplinkGetterMonoPInvoke(string lastDeeplink) {
+            if (appLastDeeplinkGetterCallbacks != null)
             {
                 foreach (Action<string> callback in appLastDeeplinkGetterCallbacks)
                 {
-                    if (callback != null)
-                    {
-                        callback.Invoke(lastDeeplink);
-                    }
+                    callback(lastDeeplink);
                 }
                 appLastDeeplinkGetterCallbacks.Clear();
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateSdkVersionGetter))]
-        private static void SdkVersionGetterMonoPInvoke(string sdkVersion)
-        {
-            if (appSdkVersionGetterCallbacks == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void SdkVersionGetterMonoPInvoke(string sdkVersion) {
+            if (appSdkVersionGetterCallbacks != null)
             {
                 foreach (Action<string> callback in appSdkVersionGetterCallbacks)
                 {
-                    if (callback != null)
-                    {
-                        callback.Invoke(sdkPrefix + "@" + sdkVersion);
-                    }
+                    callback(sdkPrefix + "@" + sdkVersion);
                 }
                 appSdkVersionGetterCallbacks.Clear();
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateAttCallback))]
-        private static void AttCallbackMonoPInvoke(int status)
-        {
-            if (appAttCallbacks == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void AttCallbackMonoPInvoke(int status) {
+            if (appAttCallbacks != null)
             {
                 foreach (Action<int> callback in appAttCallbacks)
                 {
-                    if (callback != null)
-                    {
-                        callback.Invoke(status);
-                    }
+                    callback(status);
                 }
                 appAttCallbacks.Clear();
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegatePurchaseVerificationCallback))]
-        private static void PurchaseVerificationCallbackMonoPInvoke(string verificationResult)
-        {
-            if (appPurchaseVerificationCallback == null)
+        private static void PurchaseVerificationCallbackMonoPInvoke(string verificationResult) {
+            if (appPurchaseVerificationCallback != null)
             {
-                return;
+                appPurchaseVerificationCallback(new AdjustPurchaseVerificationResult(verificationResult));
+                appPurchaseVerificationCallback = null;
             }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
-            {
-                if (appPurchaseVerificationCallback != null)
-                {
-                    appPurchaseVerificationCallback.Invoke(new AdjustPurchaseVerificationResult(verificationResult));
-                    appPurchaseVerificationCallback = null;
-                }
-            });
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateVerifyAndTrackCallback))]
-        private static void VerifyAndTrackCallbackMonoPInvoke(string verificationResult)
-        {
-            if (appVerifyAndTrackCallback == null)
+        private static void VerifyAndTrackCallbackMonoPInvoke(string verificationResult) {
+            if (appVerifyAndTrackCallback != null)
             {
-                return;
+                appVerifyAndTrackCallback(new AdjustPurchaseVerificationResult(verificationResult));
+                appVerifyAndTrackCallback = null;
             }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
-            {
-                if (appVerifyAndTrackCallback != null)
-                {
-                    appVerifyAndTrackCallback.Invoke(new AdjustPurchaseVerificationResult(verificationResult));
-                    appVerifyAndTrackCallback = null;
-                }
-            });
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateResolvedDeeplinkCallback))]
-        private static void ResolvedDeeplinkCallbackMonoPInvoke(string deeplink)
-        {
-            if (appResolvedDeeplinkCallback == null)
+        private static void ResolvedDeeplinkCallbackMonoPInvoke(string deeplink) {
+            if (appResolvedDeeplinkCallback != null)
             {
-                return;
+                appResolvedDeeplinkCallback(deeplink);
+                appResolvedDeeplinkCallback = null;
             }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
-            {
-                if (appResolvedDeeplinkCallback != null)
-                {
-                    appResolvedDeeplinkCallback.Invoke(deeplink);
-                    appResolvedDeeplinkCallback = null;
-                }
-            });
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateSkanErrorCallback))]
-        private static void SkanErrorCallbackMonoPInvoke(string error)
-        {
-            if (appSkanErrorCallback == null)
+        private static void SkanErrorCallbackMonoPInvoke(string error) {
+            if (appSkanErrorCallback != null)
             {
-                return;
+                appSkanErrorCallback(error);
+                appSkanErrorCallback = null;
             }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
-            {
-                if (appSkanErrorCallback != null)
-                {
-                    appSkanErrorCallback.Invoke(error);
-                    appSkanErrorCallback = null;
-                }
-            });
         }
 
         // MonoPInvokeCallback methods as subscriptions
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateAttributionCallback))]
-        private static void AttributionCallbackMonoPInvoke(string attribution)
-        {
-            if (appAttributionCallback == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void AttributionCallbackMonoPInvoke(string attribution) {
+            if (appAttributionCallback != null)
             {
                 appAttributionCallback(new AdjustAttribution(attribution));
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateSessionSuccessCallback))]
-        private static void SessionSuccessCallbackMonoPInvoke(string sessionSuccess)
-        {
-            if (appSessionSuccessCallback == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void SessionSuccessCallbackMonoPInvoke(string sessionSuccess) {
+            if (appSessionSuccessCallback != null)
             {
                 appSessionSuccessCallback(new AdjustSessionSuccess(sessionSuccess));
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateSessionFailureCallback))]
-        private static void SessionFailureCallbackMonoPInvoke(string sessionFailure)
-        {
-            if (appSessionFailureCallback == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void SessionFailureCallbackMonoPInvoke(string sessionFailure) {
+            if (appSessionFailureCallback != null)
             {
                 appSessionFailureCallback(new AdjustSessionFailure(sessionFailure));
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateEventSuccessCallback))]
-        private static void EventSuccessCallbackMonoPInvoke(string eventSuccess)
-        {
-            if (appEventSuccessCallback == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void EventSuccessCallbackMonoPInvoke(string eventSuccess) {
+            if (appEventSuccessCallback != null)
             {
                 appEventSuccessCallback(new AdjustEventSuccess(eventSuccess));
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateEventFailureCallback))]
-        private static void EventFailureCallbackMonoPInvoke(string eventFailure)
-        {
-            if (appEventFailureCallback == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void EventFailureCallbackMonoPInvoke(string eventFailure) {
+            if (appEventFailureCallback != null)
             {
                 appEventFailureCallback(new AdjustEventFailure(eventFailure));
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateDeferredDeeplinkCallback))]
-        private static void DeferredDeeplinkCallbackMonoPInvoke(string deeplink)
-        {
-            if (appDeferredDeeplinkCallback == null)
-            {
-                return;
-            }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
+        private static void DeferredDeeplinkCallbackMonoPInvoke(string deeplink) {
+            if (appDeferredDeeplinkCallback != null)
             {
                 appDeferredDeeplinkCallback(deeplink);
-            });
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(AdjustDelegateSkanUpdatedCallback))]
-        private static void SkanUpdatedCallbackMonoPInvoke(string skanData)
-        {
-            if (appSkanUpdatedCallback == null)
+        private static void SkanUpdatedCallbackMonoPInvoke(string skanData) {
+            if (appSkanUpdatedCallback != null)
             {
-                return;
+                appSkanUpdatedCallback(AdjustUtils.GetSkanUpdateDataDictionary(skanData));
             }
-
-            AdjustThreadDispatcher.RunOnMainThread(() =>
-            {
-                if (appSkanUpdatedCallback != null)
-                {
-                    appSkanUpdatedCallback.Invoke(AdjustUtils.GetSkanUpdateDataDictionary(skanData));
-                }
-            });
         }
     }
 #endif

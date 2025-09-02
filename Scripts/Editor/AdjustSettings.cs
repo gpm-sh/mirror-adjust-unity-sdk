@@ -38,8 +38,6 @@ namespace AdjustSdk
         private string[] _iOSUniversalLinksDomains = new string[0];
         [SerializeField]
         private string[] androidUriSchemes = new string[0];
-        [SerializeField]
-        private string _androidCustomActivityName;
 
         public static AdjustSettings Instance
         {
@@ -183,12 +181,6 @@ namespace AdjustSdk
         {
             get { return Instance.androidUriSchemes; }
             set { Instance.androidUriSchemes = value; }
-        }
-
-        public static string AndroidCustomActivityName
-        {
-            get { return Instance._androidCustomActivityName; }
-            set { Instance._androidCustomActivityName = value; }
         }
     }
 }
