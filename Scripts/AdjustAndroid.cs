@@ -8,7 +8,7 @@ namespace AdjustSdk
 #if UNITY_ANDROID
     public class AdjustAndroid
     {
-        private const string sdkPrefix = "unity5.0.3";
+        private const string sdkPrefix = "unity5.0.1";
         private static bool isDeferredDeeplinkOpeningEnabled = true;
         private static AndroidJavaClass ajcAdjust = new AndroidJavaClass("com.adjust.sdk.Adjust");
         private static AndroidJavaObject ajoCurrentActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
@@ -166,7 +166,7 @@ namespace AdjustSdk
                 var ajoUrlStrategyDomains = new AndroidJavaObject("java.util.ArrayList");
                 foreach (string domain in adjustConfig.UrlStrategyDomains)
                 {
-                    ajoUrlStrategyDomains.Call<bool>("add", domain);
+                    ajoUrlStrategyDomains.Call("add", domain);
                 }
                 ajoAdjustConfig.Call("setUrlStrategy",
                     ajoUrlStrategyDomains,
@@ -562,7 +562,7 @@ namespace AdjustSdk
         // android specific methods
         public static void GetGoogleAdId(Action<string> onDeviceIdsRead) 
         {
-            GoogleAdIdReadListener onDeviceIdsReadProxy = new GoogleAdIdReadListener(onDeviceIdsRead);
+            DeviceIdsReadListener onDeviceIdsReadProxy = new DeviceIdsReadListener(onDeviceIdsRead);
             ajcAdjust.CallStatic("getGoogleAdId", ajoCurrentActivity, onDeviceIdsReadProxy);
         }
 
@@ -576,12 +576,6 @@ namespace AdjustSdk
         {
             SdkVersionReadListener onSdkVersionReadProxy = new SdkVersionReadListener(onSdkVersionRead, sdkPrefix);
             ajcAdjust.CallStatic("getSdkVersion", onSdkVersionReadProxy);
-        }
-
-        public static void GetLastDeeplink(Action<string> onLastDeeplinkRead) 
-        {
-            LastDeeplinkListener onLastDeeplinkReadProxy = new LastDeeplinkListener(onLastDeeplinkRead);
-            ajcAdjust.CallStatic("getLastDeeplink", ajoCurrentActivity, onLastDeeplinkReadProxy);
         }
 
         public static void VerifyPlayStorePurchase(
@@ -692,6 +686,7 @@ namespace AdjustSdk
         }
 
         // private & helper classes
+        // TODO: add AndroidJavaObject null instance handling to each proxy
         private class AttributionChangedListener : AndroidJavaProxy
         {
             private Action<AdjustAttribution> callback;
@@ -701,40 +696,33 @@ namespace AdjustSdk
                 this.callback = pCallback;
             }
 
-            // native method:
-            // void onAttributionChanged(AdjustAttribution attribution);
-            public void onAttributionChanged(AndroidJavaObject ajoAttribution)
+            // method must be lowercase to match Android method signature
+            public void onAttributionChanged(AndroidJavaObject attribution)
             {
-                if (this.callback == null)
+                if (callback == null)
                 {
-                    return;
-                }
-
-                if (ajoAttribution == null)
-                {
-                    this.callback(null);
                     return;
                 }
 
                 AdjustAttribution adjustAttribution = new AdjustAttribution();
-                adjustAttribution.TrackerName = ajoAttribution.Get<string>(AdjustUtils.KeyTrackerName) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyTrackerName);
-                adjustAttribution.TrackerToken = ajoAttribution.Get<string>(AdjustUtils.KeyTrackerToken) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyTrackerToken);
-                adjustAttribution.Network = ajoAttribution.Get<string>(AdjustUtils.KeyNetwork) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyNetwork);
-                adjustAttribution.Campaign = ajoAttribution.Get<string>(AdjustUtils.KeyCampaign) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyCampaign);
-                adjustAttribution.Adgroup = ajoAttribution.Get<string>(AdjustUtils.KeyAdgroup) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyAdgroup);
-                adjustAttribution.Creative = ajoAttribution.Get<string>(AdjustUtils.KeyCreative) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyCreative);
-                adjustAttribution.ClickLabel = ajoAttribution.Get<string>(AdjustUtils.KeyClickLabel) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyClickLabel);
-                adjustAttribution.CostType = ajoAttribution.Get<string>(AdjustUtils.KeyCostType) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyCostType);
-                AndroidJavaObject ajoCostAmount = ajoAttribution.Get<AndroidJavaObject>(AdjustUtils.KeyCostAmount) == null ?
-                    null : ajoAttribution.Get<AndroidJavaObject>(AdjustUtils.KeyCostAmount);
+                adjustAttribution.TrackerName = attribution.Get<string>(AdjustUtils.KeyTrackerName) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyTrackerName);
+                adjustAttribution.TrackerToken = attribution.Get<string>(AdjustUtils.KeyTrackerToken) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyTrackerToken);
+                adjustAttribution.Network = attribution.Get<string>(AdjustUtils.KeyNetwork) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyNetwork);
+                adjustAttribution.Campaign = attribution.Get<string>(AdjustUtils.KeyCampaign) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyCampaign);
+                adjustAttribution.Adgroup = attribution.Get<string>(AdjustUtils.KeyAdgroup) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyAdgroup);
+                adjustAttribution.Creative = attribution.Get<string>(AdjustUtils.KeyCreative) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyCreative);
+                adjustAttribution.ClickLabel = attribution.Get<string>(AdjustUtils.KeyClickLabel) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyClickLabel);
+                adjustAttribution.CostType = attribution.Get<string>(AdjustUtils.KeyCostType) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyCostType);
+                AndroidJavaObject ajoCostAmount = attribution.Get<AndroidJavaObject>(AdjustUtils.KeyCostAmount) == null ?
+                    null : attribution.Get<AndroidJavaObject>(AdjustUtils.KeyCostAmount);
                 if (ajoCostAmount == null)
                 {
                     adjustAttribution.CostAmount = null;
@@ -744,12 +732,11 @@ namespace AdjustSdk
                     double costAmount = ajoCostAmount.Call<double>("doubleValue");
                     adjustAttribution.CostAmount = costAmount;
                 }
-                adjustAttribution.CostCurrency = ajoAttribution.Get<string>(AdjustUtils.KeyCostCurrency) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyCostCurrency);
-                adjustAttribution.FbInstallReferrer = ajoAttribution.Get<string>(AdjustUtils.KeyFbInstallReferrer) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyFbInstallReferrer);
-
-                this.callback(adjustAttribution);
+                adjustAttribution.CostCurrency = attribution.Get<string>(AdjustUtils.KeyCostCurrency) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyCostCurrency);
+                adjustAttribution.FbInstallReferrer = attribution.Get<string>(AdjustUtils.KeyFbInstallReferrer) == "" ?
+                    null : attribution.Get<string>(AdjustUtils.KeyFbInstallReferrer);
+                callback(adjustAttribution);
             }
         }
 
@@ -762,17 +749,16 @@ namespace AdjustSdk
                 this.callback = pCallback;
             }
 
-            // native method:
-            // boolean launchReceivedDeeplink(Uri deeplink);
+            // method must be lowercase to match Android method signature
             public bool launchReceivedDeeplink(AndroidJavaObject deeplink)
             {
-                if (this.callback == null)
+                if (callback == null)
                 {
                     return isDeferredDeeplinkOpeningEnabled;
                 }
 
-                string strDeeplink = deeplink.Call<string>("toString");
-                callback(strDeeplink);
+                string deeplinkURL = deeplink.Call<string>("toString");
+                callback(deeplinkURL);
                 return isDeferredDeeplinkOpeningEnabled;
             }
         }
@@ -786,18 +772,15 @@ namespace AdjustSdk
                 this.callback = pCallback;
             }
 
-            // native method:
-            // void onEventTrackingSucceeded(AdjustEventSuccess eventSuccessResponseData);
+            // method must be lowercase to match Android method signature
             public void onEventTrackingSucceeded(AndroidJavaObject eventSuccessData)
             {
-                if (this.callback == null)
+                if (callback == null)
                 {
                     return;
                 }
-
                 if (eventSuccessData == null)
                 {
-                    this.callback(null);
                     return;
                 }
 
@@ -826,7 +809,7 @@ namespace AdjustSdk
                     // Native Android SDK added special logic to send Unity friendly values as of v4.15.0.
                 }
 
-                this.callback(adjustEventSuccess);
+                callback(adjustEventSuccess);
             }
         }
 
@@ -839,18 +822,15 @@ namespace AdjustSdk
                 this.callback = pCallback;
             }
 
-            // native method:
-            // void onEventTrackingFailed(AdjustEventFailure eventFailureResponseData);
+            // method must be lowercase to match Android method signature
             public void onEventTrackingFailed(AndroidJavaObject eventFailureData)
             {
-                if (this.callback == null)
+                if (callback == null)
                 {
                     return;
                 }
-
                 if (eventFailureData == null)
                 {
-                    this.callback(null);
                     return;
                 }
 
@@ -880,7 +860,7 @@ namespace AdjustSdk
                     // Native Android SDK added special logic to send Unity friendly values as of v4.15.0.
                 }
                 
-                this.callback(adjustEventFailure);
+                callback(adjustEventFailure);
             }
         }
 
@@ -893,18 +873,15 @@ namespace AdjustSdk
                 this.callback = pCallback;
             }
 
-            // native method:
-            // void onSessionTrackingSucceeded(AdjustSessionSuccess sessionSuccessResponseData);
+            // method must be lowercase to match Android method signature
             public void onSessionTrackingSucceeded(AndroidJavaObject sessionSuccessData)
             {
-                if (this.callback == null)
+                if (callback == null)
                 {
                     return;
                 }
-
                 if (sessionSuccessData == null)
                 {
-                    this.callback(null);
                     return;
                 }
 
@@ -929,7 +906,7 @@ namespace AdjustSdk
                     // Native Android SDK added special logic to send Unity friendly values as of v4.15.0.
                 }
 
-                this.callback(adjustSessionSuccess);
+                callback(adjustSessionSuccess);
             }
         }
 
@@ -942,18 +919,15 @@ namespace AdjustSdk
                 this.callback = pCallback;
             }
 
-            // native method:
-            // void onSessionTrackingFailed(AdjustSessionFailure failureResponseData);
+            // method must be lowercase to match Android method signature
             public void onSessionTrackingFailed(AndroidJavaObject sessionFailureData)
             {
-                if (this.callback == null)
+                if (callback == null)
                 {
                     return;
                 }
-
                 if (sessionFailureData == null)
                 {
-                    this.callback(null);
                     return;
                 }
 
@@ -979,29 +953,41 @@ namespace AdjustSdk
                     // Native Android SDK added special logic to send Unity friendly values as of v4.15.0.
                 }
 
-                this.callback(adjustSessionFailure);
+                callback(adjustSessionFailure);
             }
         }
 
-        private class GoogleAdIdReadListener : AndroidJavaProxy
+        private class DeviceIdsReadListener : AndroidJavaProxy
         {
-            private Action<string> callback;
+            private Action<string> onPlayAdIdReadCallback;
 
-            public GoogleAdIdReadListener(Action<string> pCallback) : base("com.adjust.sdk.OnGoogleAdIdReadListener")
+            public DeviceIdsReadListener(Action<string> pCallback) : base("com.adjust.sdk.OnDeviceIdsRead")
             {
-                this.callback = pCallback;
+                this.onPlayAdIdReadCallback = pCallback;
             }
 
-            // native method:
-            // void onGoogleAdIdRead(String googleAdId);
-            public void onGoogleAdIdRead(string adid)
+            // method must be lowercase to match Android method signature
+            public void onGoogleAdIdRead(string playAdId)
             {
-                if (this.callback == null)
+                if (onPlayAdIdReadCallback == null)
                 {
                     return;
                 }
 
-                this.callback(adid);
+                this.onPlayAdIdReadCallback(playAdId);
+            }
+
+            // handling of null object
+            public void onGoogleAdIdRead(AndroidJavaObject ajoAdId)
+            {
+                if (ajoAdId == null)
+                {
+                    string adId = null;
+                    this.onGoogleAdIdRead(adId);
+                    return;
+                }
+
+                this.onGoogleAdIdRead(ajoAdId.Call<string>("toString"));
             }
         }
 
@@ -1014,27 +1000,20 @@ namespace AdjustSdk
                 this.callback = pCallback;
             }
 
-            // native method:
-            // void onVerificationFinished(AdjustPurchaseVerificationResult result);
-            public void onVerificationFinished(AndroidJavaObject ajoVerificationInfo)
+            public void onVerificationFinished(AndroidJavaObject verificationInfo)
             {
-                if (this.callback == null)
-                {
-                    return;
-                }
-
-                if (ajoVerificationInfo == null)
-                {
-                    this.callback(null);
-                    return;
-                }
-
                 AdjustPurchaseVerificationResult purchaseVerificationResult = new AdjustPurchaseVerificationResult();
-                purchaseVerificationResult.VerificationStatus = ajoVerificationInfo.Get<string>(AdjustUtils.KeyVerificationStatus);
-                purchaseVerificationResult.Code = ajoVerificationInfo.Get<int>(AdjustUtils.KeyCode);
-                purchaseVerificationResult.Message = ajoVerificationInfo.Get<string>(AdjustUtils.KeyMessage);
+                // verification status
+                purchaseVerificationResult.VerificationStatus = verificationInfo.Get<string>(AdjustUtils.KeyVerificationStatus);
+                // status code
+                purchaseVerificationResult.Code = verificationInfo.Get<int>(AdjustUtils.KeyCode);
+                // message
+                purchaseVerificationResult.Message = verificationInfo.Get<string>(AdjustUtils.KeyMessage);
 
-                this.callback(purchaseVerificationResult);
+                if (callback != null)
+                {
+                    callback(purchaseVerificationResult);
+                }
             }
         }
 
@@ -1047,62 +1026,69 @@ namespace AdjustSdk
                 this.callback = pCallback;
             }
 
-            // native method:
-            // void onDeeplinkResolved(String resolvedLink);
             public void onDeeplinkResolved(string resolvedLink)
             {
-                if (this.callback == null)
+                if (callback != null)
                 {
-                    return;
+                    callback(resolvedLink);
                 }
-
-                this.callback(resolvedLink);
             }
         }
 
         private class AdidReadListener : AndroidJavaProxy
         {
-            private Action<string> callback;
+            private Action<string> onAdidReadCallback;
 
             public AdidReadListener(Action<string> pCallback) : base("com.adjust.sdk.OnAdidReadListener")
             {
-                this.callback = pCallback;
+                this.onAdidReadCallback = pCallback;
             }
 
-            // native method:
-            // void onAdidRead(String adid);
+            // method must be lowercase to match Android method signature
             public void onAdidRead(string adid)
             {
-                if (this.callback == null)
+                if (onAdidReadCallback == null)
                 {
                     return;
                 }
 
-                this.callback(adid);
+                this.onAdidReadCallback(adid);
+            }
+
+            // handling of null object
+            public void onAdidRead(AndroidJavaObject ajoAdid)
+            {
+                if (ajoAdid == null)
+                {
+                    string adid = null;
+                    this.onAdidRead(adid);
+                    return;
+                }
+
+                this.onAdidRead(ajoAdid.Call<string>("toString"));
             }
         }
 
         private class AttributionReadListener : AndroidJavaProxy
         {
-            private Action<AdjustAttribution> callback;
+            private Action<AdjustAttribution> onAttributionReadCallback;
 
             public AttributionReadListener(Action<AdjustAttribution> pCallback) : base("com.adjust.sdk.OnAttributionReadListener")
             {
-                this.callback = pCallback;
+                this.onAttributionReadCallback = pCallback;
             }
 
-            // native method:
-            // void onAttributionRead(AdjustAttribution attribution);
+            // method must be lowercase to match Android method signature
             public void onAttributionRead(AndroidJavaObject ajoAttribution)
             {
-                if (this.callback == null)
+                if (this.onAttributionReadCallback == null)
                 {
                     return;
                 }
 
                 if (ajoAttribution == null)
                 {
-                    this.callback(null);
+                    this.onAttributionReadCallback(null);
                     return;
                 }
 
@@ -1139,105 +1125,101 @@ namespace AdjustSdk
                 adjustAttribution.FbInstallReferrer = ajoAttribution.Get<string>(AdjustUtils.KeyFbInstallReferrer) == "" ?
                     null : ajoAttribution.Get<string>(AdjustUtils.KeyFbInstallReferrer);
 
-                this.callback(adjustAttribution);
+                this.onAttributionReadCallback(adjustAttribution);
             }
         }
 
         private class AmazonAdIdReadListener : AndroidJavaProxy
         {
-            private Action<string> callback;
+            private Action<string> onAmazonAdIdReadCallback;
 
             public AmazonAdIdReadListener(Action<string> pCallback) : base("com.adjust.sdk.OnAmazonAdIdReadListener")
             {
-                this.callback = pCallback;
+                this.onAmazonAdIdReadCallback = pCallback;
             }
 
-            // native method:
-            // void onAmazonAdIdRead(String amazonAdId);
+            // method must be lowercase to match Android method signature
             public void onAmazonAdIdRead(string amazonAdId)
             {
-                if (this.callback == null)
+                if (this.onAmazonAdIdReadCallback == null)
                 {
                     return;
                 }
 
-                this.callback(amazonAdId);
+                this.onAmazonAdIdReadCallback(amazonAdId);
+            }
+
+            // handling of null object
+            public void onAmazonAdIdRead(AndroidJavaObject ajoAmazonAdId)
+            {
+                if (ajoAmazonAdId == null)
+                {
+                    string amazonAdId = null;
+                    this.onAmazonAdIdRead(amazonAdId);
+                    return;
+                }
+
+                this.onAmazonAdIdRead(ajoAmazonAdId.Call<string>("toString"));
             }
         }
 
         private class SdkVersionReadListener : AndroidJavaProxy
         {
-            private Action<string> callback;
+            private Action<string> onSdkVersionReadCallback;
             private string sdkPrefix;
 
             public SdkVersionReadListener(Action<string> pCallback, string sdkPrefix) : base("com.adjust.sdk.OnSdkVersionReadListener")
             {
-                this.callback = pCallback;
+                this.onSdkVersionReadCallback = pCallback;
                 this.sdkPrefix = sdkPrefix;
             }
 
-            // native method:
-            // void onSdkVersionRead(String sdkVersion);
+            // method must be lowercase to match Android method signature
             public void onSdkVersionRead(string sdkVersion)
             {
-                if (this.callback == null)
+                if (this.onSdkVersionReadCallback == null)
                 {
                     return;
                 }
 
-                this.callback(this.sdkPrefix + "@" + sdkVersion);
+                this.onSdkVersionReadCallback(this.sdkPrefix + "@" + sdkVersion);
+            }
+
+            // handling of null object
+            public void onSdkVersionRead(AndroidJavaObject ajoSdkVersion)
+            {
+                if (ajoSdkVersion == null)
+                {
+                    string sdkVersion = null;
+                    this.onSdkVersionRead(sdkVersion);
+                    return;
+                }
+
+                this.onSdkVersionRead(ajoSdkVersion.Call<string>("toString"));
             }
         }
 
         private class IsEnabledListener : AndroidJavaProxy
         {
-            private Action<bool> callback;
+            private Action<bool> onIsEnabledCallback;
 
             public IsEnabledListener(Action<bool> pCallback) : base("com.adjust.sdk.OnIsEnabledListener")
             {
-                this.callback = pCallback;
+                this.onIsEnabledCallback = pCallback;
             }
 
-            // native method:
-            // void onIsEnabledRead(boolean isEnabled);
+            // method must be lowercase to match Android method signature
             public void onIsEnabledRead(bool isEnabled)
             {
-                if (this.callback == null)
+                if (this.onIsEnabledCallback == null)
                 {
                     return;
                 }
 
-                this.callback(isEnabled);
-            }
-        }
-
-        private class LastDeeplinkListener : AndroidJavaProxy
-        {
-            private Action<string> callback;
-
-            public LastDeeplinkListener(Action<string> pCallback) : base("com.adjust.sdk.OnLastDeeplinkReadListener")
-            {
-                this.callback = pCallback;
+                this.onIsEnabledCallback(isEnabled);
             }
 
-            // native method:
-            // void onLastDeeplinkRead(Uri deeplink);
-            public void onLastDeeplinkRead(AndroidJavaObject ajoLastDeeplink)
-            {
-                if (this.callback == null)
-                {
-                    return;
-                }
-
-                if (ajoLastDeeplink == null)
-                {
-                    this.callback(null);
-                }
-                else
-                {
-                    this.callback(ajoLastDeeplink.Call<string>("toString"));
-                }
-            }
+            // not handling null for primitive data type
         }
     }
 #endif
