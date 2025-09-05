@@ -8,7 +8,7 @@ namespace AdjustSdk
 #if UNITY_ANDROID
     public class AdjustAndroid
     {
-        private const string sdkPrefix = "unity5.0.1";
+        private const string sdkPrefix = "unity5.0.0";
         private static bool isDeferredDeeplinkOpeningEnabled = true;
         private static AndroidJavaClass ajcAdjust = new AndroidJavaClass("com.adjust.sdk.Adjust");
         private static AndroidJavaObject ajoCurrentActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
@@ -79,24 +79,6 @@ namespace AdjustSdk
                 if (adjustConfig.IsDeviceIdsReadingOnceEnabled == true)
                 {
                     ajoAdjustConfig.Call("enableDeviceIdsReadingOnce");
-                }
-            }
-
-            // check if COPPA compliance is enabled
-            if (adjustConfig.IsCoppaComplianceEnabled != null)
-            {
-                if (adjustConfig.IsCoppaComplianceEnabled == true)
-                {
-                    ajoAdjustConfig.Call("enableCoppaCompliance");
-                }
-            }
-
-            // check if Play Store Kids compliance is enabled
-            if (adjustConfig.IsPlayStoreKidsComplianceEnabled != null)
-            {
-                if (adjustConfig.IsPlayStoreKidsComplianceEnabled == true)
-                {
-                    ajoAdjustConfig.Call("enablePlayStoreKidsCompliance");
                 }
             }
 
@@ -384,12 +366,11 @@ namespace AdjustSdk
             ajcAdjust.CallStatic("removeGlobalCallbackParameters");
         }
 
-        public static void ProcessDeeplink(AdjustDeeplink deeplink) 
+        public static void ProcessDeeplink(string url) 
         {
             AndroidJavaClass ajcUri = new AndroidJavaClass("android.net.Uri");
-            AndroidJavaObject ajoUri = ajcUri.CallStatic<AndroidJavaObject>("parse", deeplink.Deeplink);
-            AndroidJavaObject ajoAdjustDeeplink = new AndroidJavaObject("com.adjust.sdk.AdjustDeeplink", ajoUri);
-            ajcAdjust.CallStatic("processDeeplink", ajoAdjustDeeplink, ajoCurrentActivity);
+            AndroidJavaObject ajoUri = ajcUri.CallStatic<AndroidJavaObject>("parse", url);
+            ajcAdjust.CallStatic("processDeeplink", ajoUri, ajoCurrentActivity);
         }
 
         public static void TrackAdRevenue(AdjustAdRevenue adRevenue)
@@ -590,13 +571,12 @@ namespace AdjustSdk
             ajcAdjust.CallStatic("verifyPlayStorePurchase", ajoPurchase, onVerificationResultListener);
         }
 
-        public static void ProcessAndResolveDeeplink(AdjustDeeplink deeplink, Action<string> resolvedLinkCallback)
+        public static void ProcessAndResolveDeeplink(string url, Action<string> resolvedLinkCallback)
         {
             onDeeplinkResolvedListener = new DeeplinkResolutionListener(resolvedLinkCallback);
             AndroidJavaClass ajcUri = new AndroidJavaClass("android.net.Uri");
-            AndroidJavaObject ajoUri = ajcUri.CallStatic<AndroidJavaObject>("parse", deeplink.Deeplink);
-            AndroidJavaObject ajoAdjustDeeplink = new AndroidJavaObject("com.adjust.sdk.AdjustDeeplink", ajoUri);
-            ajcAdjust.CallStatic("processAndResolveDeeplink", ajoAdjustDeeplink, ajoCurrentActivity, onDeeplinkResolvedListener);
+            AndroidJavaObject ajoUri = ajcUri.CallStatic<AndroidJavaObject>("parse", url);
+            ajcAdjust.CallStatic("processAndResolveDeeplink", ajoUri, ajoCurrentActivity, onDeeplinkResolvedListener);
         }
 
         public static void VerifyAndTrackPlayStorePurchase(
@@ -773,7 +753,7 @@ namespace AdjustSdk
             }
 
             // method must be lowercase to match Android method signature
-            public void onEventTrackingSucceeded(AndroidJavaObject eventSuccessData)
+            public void onFinishedEventTrackingSucceeded(AndroidJavaObject eventSuccessData)
             {
                 if (callback == null)
                 {
@@ -823,7 +803,7 @@ namespace AdjustSdk
             }
 
             // method must be lowercase to match Android method signature
-            public void onEventTrackingFailed(AndroidJavaObject eventFailureData)
+            public void onFinishedEventTrackingFailed(AndroidJavaObject eventFailureData)
             {
                 if (callback == null)
                 {
@@ -874,7 +854,7 @@ namespace AdjustSdk
             }
 
             // method must be lowercase to match Android method signature
-            public void onSessionTrackingSucceeded(AndroidJavaObject sessionSuccessData)
+            public void onFinishedSessionTrackingSucceeded(AndroidJavaObject sessionSuccessData)
             {
                 if (callback == null)
                 {
@@ -920,7 +900,7 @@ namespace AdjustSdk
             }
 
             // method must be lowercase to match Android method signature
-            public void onSessionTrackingFailed(AndroidJavaObject sessionFailureData)
+            public void onFinishedSessionTrackingFailed(AndroidJavaObject sessionFailureData)
             {
                 if (callback == null)
                 {

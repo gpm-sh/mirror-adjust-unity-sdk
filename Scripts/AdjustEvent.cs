@@ -43,6 +43,7 @@ namespace AdjustSdk
             }
         }
         // ios specific
+        public string Receipt { get; set; }
         public string TransactionId { get; set; }
         // android specific
         public string PurchaseToken;

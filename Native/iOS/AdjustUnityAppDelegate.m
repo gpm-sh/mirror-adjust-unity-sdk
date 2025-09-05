@@ -6,7 +6,7 @@
 //
 
 #import <objc/runtime.h>
-#import <AdjustSdk/AdjustSdk.h>
+#import <AdjustSdk/Adjust.h>
 #import "AdjustUnityAppDelegate.h"
 
 typedef BOOL (*openURL_t)(id, SEL, UIApplication *, NSURL *, NSDictionary *);
@@ -56,8 +56,7 @@ static continueUserActivity_t original_continueUserActivity = NULL;
 - (BOOL)adjust_application:(UIApplication *)application
                    openURL:(NSURL *)url
                    options:(NSDictionary *)options {
-    ADJDeeplink *deeplink = [[ADJDeeplink alloc] initWithDeeplink:url];
-    [Adjust processDeeplink:deeplink];
+    [Adjust processDeeplink:url];
     return original_openURL ? original_openURL(self, _cmd, application, url, options) : YES;
 }
 
@@ -66,8 +65,7 @@ static continueUserActivity_t original_continueUserActivity = NULL;
         restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
     if ([[userActivity activityType] isEqualToString:NSUserActivityTypeBrowsingWeb]) {
         NSURL *url = [userActivity webpageURL];
-        ADJDeeplink *deeplink = [[ADJDeeplink alloc] initWithDeeplink:url];
-        [Adjust processDeeplink:deeplink];
+        [Adjust processDeeplink:url];
     }
     return original_continueUserActivity ? original_continueUserActivity(self, _cmd, application, userActivity, restorationHandler) : YES;
 }

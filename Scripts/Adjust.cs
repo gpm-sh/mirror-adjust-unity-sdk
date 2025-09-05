@@ -23,8 +23,6 @@ namespace AdjustSdk
         [HideInInspector]
         public AdjustLogLevel logLevel = AdjustLogLevel.Info;
         [HideInInspector]
-        public bool coppaCompliance = false;
-        [HideInInspector]
         public bool sendInBackground = false;
         [HideInInspector]
         public bool launchDeferredDeeplink = true;
@@ -62,14 +60,11 @@ namespace AdjustSdk
 
             // TODO: double-check the state of Unity on deep linking nowadays
 #if UNITY_ANDROID && UNITY_2019_2_OR_NEWER
-            Application.deepLinkActivated += (deeplink) =>
-            {
-                Adjust.ProcessDeeplink(new AdjustDeeplink(deeplink));
-            };
+            Application.deepLinkActivated += Adjust.ProcessDeeplink;
             if (!string.IsNullOrEmpty(Application.absoluteURL))
             {
                 // cold start and Application.absoluteURL not null so process deep link
-                Adjust.ProcessDeeplink(new AdjustDeeplink(Application.absoluteURL));
+                Adjust.ProcessDeeplink(Application.absoluteURL);
             }
 #endif
 
@@ -84,7 +79,6 @@ namespace AdjustSdk
                 adjustConfig.IsDeferredDeeplinkOpeningEnabled = this.launchDeferredDeeplink;
                 adjustConfig.DefaultTracker = this.defaultTracker;
                 // TODO: URL strategy
-                adjustConfig.IsCoppaComplianceEnabled = this.coppaCompliance;
                 adjustConfig.IsCostDataInAttributionEnabled = this.costDataInAttribution;
                 adjustConfig.IsPreinstallTrackingEnabled = this.preinstallTracking;
                 adjustConfig.PreinstallFilePath = this.preinstallFilePath;
@@ -166,6 +160,38 @@ namespace AdjustSdk
             AdjustiOS.Disable();
 #elif UNITY_ANDROID
             AdjustAndroid.Disable();
+#else
+            Debug.Log(errorMsgPlatform);
+#endif
+        }
+
+        public static void EnableCoppaCompliance()
+        {
+            if (IsEditor())
+            {
+                return;
+            }
+
+#if UNITY_IOS
+            AdjustiOS.EnableCoppaCompliance();
+#elif UNITY_ANDROID
+            AdjustAndroid.EnableCoppaCompliance();
+#else
+            Debug.Log(errorMsgPlatform);
+#endif
+        }
+
+        public static void DisableCoppaCompliance()
+        {
+            if (IsEditor())
+            {
+                return;
+            }
+
+#if UNITY_IOS
+            AdjustiOS.DisableCoppaCompliance();
+#elif UNITY_ANDROID
+            AdjustAndroid.DisableCoppaCompliance();
 #else
             Debug.Log(errorMsgPlatform);
 #endif
@@ -284,7 +310,7 @@ namespace AdjustSdk
 #endif
         }
 
-        public static void ProcessDeeplink(AdjustDeeplink deeplink)
+        public static void ProcessDeeplink(string deeplink)
         {
             if (IsEditor())
             {
@@ -665,7 +691,7 @@ namespace AdjustSdk
 #endif
         }
 
-        public static void ProcessAndResolveDeeplink(AdjustDeeplink deeplink, Action<string> callback)
+        public static void ProcessAndResolveDeeplink(string deeplink, Action<string> callback)
         {
             if (IsEditor())
             {

@@ -28,8 +28,6 @@ public class Example : MonoBehaviour
             {
                 AdjustConfig adjustConfig = new AdjustConfig("2fm9gkqubvpc", AdjustEnvironment.Sandbox);
                 adjustConfig.LogLevel = AdjustLogLevel.Verbose;
-                adjustConfig.AttributionChangedDelegate = AttributionChangedCallback;
-                adjustConfig.DeferredDeeplinkDelegate = DeferredDeeplinkCallback;
                 Adjust.InitSdk(adjustConfig);
 
                 isEnabled = true;

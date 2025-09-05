@@ -59,8 +59,8 @@ static AdjustUnityDelegate *defaultInstance = nil;
                                         withSelector:@selector(adjustSessionTrackingFailedWannabe:)];
         }
         if (deferredDeeplinkCallback != nil) {
-            [defaultInstance swizzleOriginalSelector:@selector(adjustDeferredDeeplinkReceived:)
-                                        withSelector:@selector(adjustDeferredDeeplinkReceivedWannabe:)];
+            [defaultInstance swizzleOriginalSelector:@selector(adjustDeeplinkResponse:)
+                                        withSelector:@selector(adjustDeeplinkResponseWannabe:)];
         }
         if (skanUpdatedCallback != nil) {
             [defaultInstance swizzleOriginalSelector:@selector(adjustSkanUpdatedWithConversionData:)
@@ -143,7 +143,7 @@ static AdjustUnityDelegate *defaultInstance = nil;
     [self addValueOrEmpty:eventSuccessResponseData.message
                    forKey:@"message"
              toDictionary:dictionary];
-    [self addValueOrEmpty:eventSuccessResponseData.timestamp
+    [self addValueOrEmpty:eventSuccessResponseData.timeStamp
                    forKey:@"timestamp"
              toDictionary:dictionary];
     [self addValueOrEmpty:eventSuccessResponseData.adid
@@ -179,7 +179,7 @@ static AdjustUnityDelegate *defaultInstance = nil;
     [self addValueOrEmpty:eventFailureResponseData.message
                    forKey:@"message"
              toDictionary:dictionary];
-    [self addValueOrEmpty:eventFailureResponseData.timestamp
+    [self addValueOrEmpty:eventFailureResponseData.timeStamp
                    forKey:@"timestamp"
              toDictionary:dictionary];
     [self addValueOrEmpty:eventFailureResponseData.adid
@@ -217,7 +217,7 @@ static AdjustUnityDelegate *defaultInstance = nil;
     [self addValueOrEmpty:sessionSuccessResponseData.message
                    forKey:@"message"
              toDictionary:dictionary];
-    [self addValueOrEmpty:sessionSuccessResponseData.timestamp
+    [self addValueOrEmpty:sessionSuccessResponseData.timeStamp
                    forKey:@"timestamp"
              toDictionary:dictionary];
     [self addValueOrEmpty:sessionSuccessResponseData.adid
@@ -247,7 +247,7 @@ static AdjustUnityDelegate *defaultInstance = nil;
     [self addValueOrEmpty:sessionFailureResponseData.message
                    forKey:@"message"
              toDictionary:dictionary];
-    [self addValueOrEmpty:sessionFailureResponseData.timestamp
+    [self addValueOrEmpty:sessionFailureResponseData.timeStamp
                    forKey:@"timestamp"
              toDictionary:dictionary];
     [self addValueOrEmpty:sessionFailureResponseData.adid
@@ -270,7 +270,7 @@ static AdjustUnityDelegate *defaultInstance = nil;
     _sessionFailureCallback(charArraySessionFailure);
 }
 
-- (BOOL)adjustDeferredDeeplinkReceivedWannabe:(NSURL *)deeplink {
+- (BOOL)adjustDeeplinkResponseWannabe:(NSURL *)deeplink {
     if (_deferredDeeplinkCallback != nil) {
         NSString *stringDeeplink = [deeplink absoluteString];
         const char* charDeeplink = [stringDeeplink UTF8String];

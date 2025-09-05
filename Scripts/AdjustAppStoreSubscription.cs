@@ -11,6 +11,7 @@ namespace AdjustSdk
         public string Price { get; private set; }
         public string Currency { get; private set; }
         public string TransactionId { get; private set; }
+        public string Receipt { get; private set; }
         public string TransactionDate { get; set; }
         public string SalesRegion { get; set; }
         public ReadOnlyCollection<string> CallbackParameters
@@ -42,11 +43,12 @@ namespace AdjustSdk
             }
         }
 
-        public AdjustAppStoreSubscription(string price, string currency, string transactionId)
+        public AdjustAppStoreSubscription(string price, string currency, string transactionId, string receipt)
         {
             this.Price = price;
             this.Currency = currency;
             this.TransactionId = transactionId;
+            this.Receipt = receipt;
         }
 
         public void AddCallbackParameter(string key, string value)
