@@ -21,7 +21,6 @@ typedef void (*AdjustDelegateLastDeeplinkGetter)(const char* lastDeeplink);
 typedef void (*AdjustDelegateSdkVersionGetter)(const char* sdkVersion);
 typedef void (*AdjustDelegateAttCallback)(int status);
 typedef void (*AdjustDelegatePurchaseVerificationCallback)(const char* verificationResult);
-typedef void (*AdjustDelegateVerifyAndTrackCallback)(const char* verificationResult);
 typedef void (*AdjustDelegateResolvedDeeplinkCallback)(const char* deeplink);
 typedef void (*AdjustDelegateSkanErrorCallback)(const char* error);
 
