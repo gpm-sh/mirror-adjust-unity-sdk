@@ -20,6 +20,7 @@ namespace AdjustSdk
         private static List<Action<string>> appSdkVersionGetterCallbacks;
         private static List<Action<int>> appAttCallbacks;
         private static Action<AdjustPurchaseVerificationResult> appPurchaseVerificationCallback;
+        private static Action<AdjustPurchaseVerificationResult> appVerifyAndTrackCallback;
         private static Action<string> appResolvedDeeplinkCallback;
         private static Action<string> appSkanErrorCallback;
 
@@ -53,6 +54,7 @@ namespace AdjustSdk
             int attConsentWaitingInterval,
             int eventDeduplicationIdsMaxSize,
             int shouldUseSubdomains,
+            int isCoppaComplianceEnabled,
             int isDataResidency,
             int isSendingInBackgroundEnabled,
             int isAdServicesEnabled,
@@ -75,7 +77,6 @@ namespace AdjustSdk
             string eventToken,
             double revenue,
             string currency,
-            string receipt,
             string productId,
             string transactionId,
             string callbackId,
@@ -88,12 +89,6 @@ namespace AdjustSdk
 
         [DllImport("__Internal")]
         private static extern void _AdjustDisable();
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustEnableCoppaCompliance();
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustDisableCoppaCompliance();
 
         [DllImport("__Internal")]
         private static extern void _AdjustSwitchToOfflineMode();
@@ -179,7 +174,6 @@ namespace AdjustSdk
             string price,
             string currency,
             string transactionId,
-            string receipt,
             string transactionDate,
             string salesRegion,
             string jsonCallbackParameters,
@@ -235,7 +229,20 @@ namespace AdjustSdk
         private static extern void _AdjustVerifyAppStorePurchase(
             string transactionId,
             string productId,
-            string receipt,
+            AdjustDelegatePurchaseVerificationCallback callback);
+
+        private delegate void AdjustDelegateVerifyAndTrackCallback(string verificationResult);
+        [DllImport("__Internal")]
+        private static extern void _AdjustVerifyAndTrackAppStorePurchase(
+            string eventToken,
+            double revenue,
+            string currency,
+            string productId,
+            string transactionId,
+            string callbackId,
+            string deduplicationId,
+            string jsonCallbackParameters,
+            string jsonPartnerParameters,
             AdjustDelegatePurchaseVerificationCallback callback);
 
         // public API
@@ -252,6 +259,7 @@ namespace AdjustSdk
             int attConsentWaitingInterval = AdjustUtils.ConvertInt(adjustConfig.AttConsentWaitingInterval);
             int eventDeduplicationIdsMaxSize = AdjustUtils.ConvertInt(adjustConfig.EventDeduplicationIdsMaxSize);
             int logLevel = AdjustUtils.ConvertLogLevel(adjustConfig.LogLevel);
+            int isCoppaComplianceEnabled = AdjustUtils.ConvertBool(adjustConfig.IsCoppaComplianceEnabled);
             int isSendingInBackgroundEnabled = AdjustUtils.ConvertBool(adjustConfig.IsSendingInBackgroundEnabled);
             int isAdServicesEnabled = AdjustUtils.ConvertBool(adjustConfig.IsAdServicesEnabled);
             int isIdfaReadingEnabled = AdjustUtils.ConvertBool(adjustConfig.IsIdfaReadingEnabled);
@@ -283,6 +291,7 @@ namespace AdjustSdk
                 attConsentWaitingInterval,
                 eventDeduplicationIdsMaxSize,
                 shouldUseSubdomains,
+                isCoppaComplianceEnabled,
                 isDataResidency,
                 isSendingInBackgroundEnabled,
                 isAdServicesEnabled,
@@ -306,7 +315,6 @@ namespace AdjustSdk
             double revenue = AdjustUtils.ConvertDouble(adjustEvent.Revenue);
             string eventToken = adjustEvent.EventToken;
             string currency = adjustEvent.Currency;
-            string receipt = adjustEvent.Receipt;
             string productId = adjustEvent.ProductId;
             string transactionId = adjustEvent.TransactionId;
             string callbackId = adjustEvent.CallbackId;
@@ -318,14 +326,13 @@ namespace AdjustSdk
                 eventToken,
                 revenue,
                 currency,
-                receipt,
                 productId,
                 transactionId,
                 callbackId,
                 deduplicationId,
                 stringJsonCallbackParameters,
                 stringJsonPartnerParameters);
-        }        
+        }
 
         public static void Enable()
         {
@@ -335,16 +342,6 @@ namespace AdjustSdk
         public static void Disable()
         {
             _AdjustDisable();
-        }
-
-        public static void EnableCoppaCompliance()
-        {
-            _AdjustEnableCoppaCompliance();
-        }
-
-        public static void DisableCoppaCompliance()
-        {
-            _AdjustDisableCoppaCompliance();
         }
 
         public static void SwitchToOfflineMode()
@@ -357,9 +354,9 @@ namespace AdjustSdk
             _AdjustSwitchBackToOnlineMode();
         }
 
-        public static void ProcessDeeplink(string deeplink)
+        public static void ProcessDeeplink(AdjustDeeplink adjustDeeplink)
         {
-            _AdjustProcessDeeplink(deeplink);
+            _AdjustProcessDeeplink(adjustDeeplink.Deeplink);
         }
 
         public static void AddGlobalPartnerParameter(string key, string value)
@@ -421,7 +418,6 @@ namespace AdjustSdk
             string price = subscription.Price;
             string currency = subscription.Currency;
             string transactionId = subscription.TransactionId;
-            string receipt = subscription.Receipt;
             string transactionDate = subscription.TransactionDate;
             string salesRegion = subscription.SalesRegion;
             string stringJsonCallbackParameters = AdjustUtils.ConvertReadOnlyCollectionOfPairsToJson(subscription.CallbackParameters);
@@ -431,7 +427,6 @@ namespace AdjustSdk
                 price,
                 currency,
                 transactionId,
-                receipt,
                 transactionDate,
                 salesRegion,
                 stringJsonCallbackParameters,
@@ -571,20 +566,46 @@ namespace AdjustSdk
         {
             string transactionId = purchase.TransactionId;
             string productId = purchase.ProductId;
-            string receipt = purchase.Receipt;
             appPurchaseVerificationCallback = callback;
             
             _AdjustVerifyAppStorePurchase(
                 transactionId,
                 productId,
-                receipt,
                 PurchaseVerificationCallbackMonoPInvoke);
         }
 
-        public static void ProcessAndResolveDeeplink(string deeplink, Action<string> callback)
+        public static void ProcessAndResolveDeeplink(AdjustDeeplink adjustDeeplink, Action<string> callback)
         {
             appResolvedDeeplinkCallback = callback;
-            _AdjustProcessAndResolveDeeplink(deeplink, ResolvedDeeplinkCallbackMonoPInvoke);
+            _AdjustProcessAndResolveDeeplink(adjustDeeplink.Deeplink, ResolvedDeeplinkCallbackMonoPInvoke);
+        }
+
+        public static void VerifyAndTrackAppStorePurchase(
+            AdjustEvent adjustEvent,
+            Action<AdjustPurchaseVerificationResult> callback)
+        {
+            double revenue = AdjustUtils.ConvertDouble(adjustEvent.Revenue);
+            string eventToken = adjustEvent.EventToken;
+            string currency = adjustEvent.Currency;
+            string productId = adjustEvent.ProductId;
+            string transactionId = adjustEvent.TransactionId;
+            string callbackId = adjustEvent.CallbackId;
+            string deduplicationId = adjustEvent.DeduplicationId;
+            string stringJsonCallbackParameters = AdjustUtils.ConvertReadOnlyCollectionOfPairsToJson(adjustEvent.CallbackParameters);
+            string stringJsonPartnerParameters = AdjustUtils.ConvertReadOnlyCollectionOfPairsToJson(adjustEvent.PartnerParameters);
+            appVerifyAndTrackCallback = callback;
+
+            _AdjustVerifyAndTrackAppStorePurchase(
+                eventToken,
+                revenue,
+                currency,
+                productId,
+                transactionId,
+                callbackId,
+                deduplicationId,
+                stringJsonCallbackParameters,
+                stringJsonPartnerParameters,
+                VerifyAndTrackCallbackMonoPInvoke);
         }
 
         // used for testing only (don't use this in your app)
@@ -774,6 +795,15 @@ namespace AdjustSdk
             {
                 appPurchaseVerificationCallback(new AdjustPurchaseVerificationResult(verificationResult));
                 appPurchaseVerificationCallback = null;
+            }
+        }
+
+        [AOT.MonoPInvokeCallback(typeof(AdjustDelegateVerifyAndTrackCallback))]
+        private static void VerifyAndTrackCallbackMonoPInvoke(string verificationResult) {
+            if (appVerifyAndTrackCallback != null)
+            {
+                appVerifyAndTrackCallback(new AdjustPurchaseVerificationResult(verificationResult));
+                appVerifyAndTrackCallback = null;
             }
         }
 

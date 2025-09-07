@@ -8,6 +8,7 @@ namespace AdjustSdk
         public string AppToken { get; private set; }
         public string DefaultTracker { get; set; }
         public string ExternalDeviceId { get; set; }
+        public bool? IsCoppaComplianceEnabled { get; set; }
         public bool? IsSendingInBackgroundEnabled { get; set; }
         public bool? IsCostDataInAttributionEnabled { get; set; }
         public bool? IsDeviceIdsReadingOnceEnabled { get; set; }
@@ -35,6 +36,7 @@ namespace AdjustSdk
         public int? AttConsentWaitingInterval { get; set; }
 
         // Android specific
+        public bool? IsPlayStoreKidsComplianceEnabled { get; set; }
         public bool? IsPreinstallTrackingEnabled { get; set; }
         public string PreinstallFilePath { get; set; }
         public string FbAppId { get; set; }

@@ -23,6 +23,8 @@ namespace AdjustSdk
         [HideInInspector]
         public AdjustLogLevel logLevel = AdjustLogLevel.Info;
         [HideInInspector]
+        public bool coppaCompliance = false;
+        [HideInInspector]
         public bool sendInBackground = false;
         [HideInInspector]
         public bool launchDeferredDeeplink = true;
@@ -60,11 +62,14 @@ namespace AdjustSdk
 
             // TODO: double-check the state of Unity on deep linking nowadays
 #if UNITY_ANDROID && UNITY_2019_2_OR_NEWER
-            Application.deepLinkActivated += Adjust.ProcessDeeplink;
+            Application.deepLinkActivated += (deeplink) =>
+            {
+                Adjust.ProcessDeeplink(new AdjustDeeplink(deeplink));
+            };
             if (!string.IsNullOrEmpty(Application.absoluteURL))
             {
                 // cold start and Application.absoluteURL not null so process deep link
-                Adjust.ProcessDeeplink(Application.absoluteURL);
+                Adjust.ProcessDeeplink(new AdjustDeeplink(Application.absoluteURL));
             }
 #endif
 
@@ -79,6 +84,7 @@ namespace AdjustSdk
                 adjustConfig.IsDeferredDeeplinkOpeningEnabled = this.launchDeferredDeeplink;
                 adjustConfig.DefaultTracker = this.defaultTracker;
                 // TODO: URL strategy
+                adjustConfig.IsCoppaComplianceEnabled = this.coppaCompliance;
                 adjustConfig.IsCostDataInAttributionEnabled = this.costDataInAttribution;
                 adjustConfig.IsPreinstallTrackingEnabled = this.preinstallTracking;
                 adjustConfig.PreinstallFilePath = this.preinstallFilePath;
@@ -160,38 +166,6 @@ namespace AdjustSdk
             AdjustiOS.Disable();
 #elif UNITY_ANDROID
             AdjustAndroid.Disable();
-#else
-            Debug.Log(errorMsgPlatform);
-#endif
-        }
-
-        public static void EnableCoppaCompliance()
-        {
-            if (IsEditor())
-            {
-                return;
-            }
-
-#if UNITY_IOS
-            AdjustiOS.EnableCoppaCompliance();
-#elif UNITY_ANDROID
-            AdjustAndroid.EnableCoppaCompliance();
-#else
-            Debug.Log(errorMsgPlatform);
-#endif
-        }
-
-        public static void DisableCoppaCompliance()
-        {
-            if (IsEditor())
-            {
-                return;
-            }
-
-#if UNITY_IOS
-            AdjustiOS.DisableCoppaCompliance();
-#elif UNITY_ANDROID
-            AdjustAndroid.DisableCoppaCompliance();
 #else
             Debug.Log(errorMsgPlatform);
 #endif
@@ -310,7 +284,7 @@ namespace AdjustSdk
 #endif
         }
 
-        public static void ProcessDeeplink(string deeplink)
+        public static void ProcessDeeplink(AdjustDeeplink deeplink)
         {
             if (IsEditor())
             {
@@ -685,21 +659,13 @@ namespace AdjustSdk
 #if UNITY_IOS
             Debug.Log("[Adjust]: Play Store purchase verification is only supported for Android platform.");
 #elif UNITY_ANDROID
-            if (purchase == null ||
-                purchase.ProductId == null ||
-                purchase.PurchaseToken == null)
-            {
-                Debug.Log("[Adjust]: Invalid Play Store purchase parameters.");
-                return;
-            }
-
             AdjustAndroid.VerifyPlayStorePurchase(purchase, verificationResultCallback);
 #else
             Debug.Log(errorMsgPlatform);
 #endif
         }
 
-        public static void ProcessAndResolveDeeplink(string deeplink, Action<string> callback)
+        public static void ProcessAndResolveDeeplink(AdjustDeeplink deeplink, Action<string> callback)
         {
             if (IsEditor())
             {
@@ -710,6 +676,42 @@ namespace AdjustSdk
             AdjustiOS.ProcessAndResolveDeeplink(deeplink, callback);
 #elif UNITY_ANDROID
             AdjustAndroid.ProcessAndResolveDeeplink(deeplink, callback);
+#else
+            Debug.Log(errorMsgPlatform);
+#endif
+        }
+
+        public static void VerifyAndTrackAppStorePurchase(
+            AdjustEvent adjustEvent,
+            Action<AdjustPurchaseVerificationResult> callback)
+        {
+            if (IsEditor())
+            {
+                return;
+            }
+
+#if UNITY_IOS
+            AdjustiOS.VerifyAndTrackAppStorePurchase(adjustEvent, callback);
+#elif UNITY_ANDROID
+            Debug.Log("[Adjust]: App Store purchase verification is only supported for iOS platform.");
+#else
+            Debug.Log(errorMsgPlatform);
+#endif
+        }
+
+        public static void VerifyAndTrackPlayStorePurchase(
+            AdjustEvent adjustEvent,
+            Action<AdjustPurchaseVerificationResult> verificationResultCallback)
+        {
+            if (IsEditor())
+            {
+                return;
+            }
+
+#if UNITY_IOS
+            Debug.Log("[Adjust]: Play Store purchase verification is only supported for Android platform.");
+#elif UNITY_ANDROID
+            AdjustAndroid.VerifyAndTrackPlayStorePurchase(adjustEvent, verificationResultCallback);
 #else
             Debug.Log(errorMsgPlatform);
 #endif

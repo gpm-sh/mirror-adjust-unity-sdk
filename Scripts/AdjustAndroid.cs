@@ -19,6 +19,7 @@ namespace AdjustSdk
         private static SessionTrackingFailedListener onSessionTrackingFailedListener;
         private static SessionTrackingSucceededListener onSessionTrackingSucceededListener;
         private static VerificationResultListener onVerificationResultListener;
+        private static VerificationResultListener onVerifyAndTrackListener;
         private static DeeplinkResolutionListener onDeeplinkResolvedListener;
 
         public static void InitSdk(AdjustConfig adjustConfig)
@@ -78,6 +79,24 @@ namespace AdjustSdk
                 if (adjustConfig.IsDeviceIdsReadingOnceEnabled == true)
                 {
                     ajoAdjustConfig.Call("enableDeviceIdsReadingOnce");
+                }
+            }
+
+            // check if COPPA compliance is enabled
+            if (adjustConfig.IsCoppaComplianceEnabled != null)
+            {
+                if (adjustConfig.IsCoppaComplianceEnabled == true)
+                {
+                    ajoAdjustConfig.Call("enableCoppaCompliance");
+                }
+            }
+
+            // check if Play Store Kids compliance is enabled
+            if (adjustConfig.IsPlayStoreKidsComplianceEnabled != null)
+            {
+                if (adjustConfig.IsPlayStoreKidsComplianceEnabled == true)
+                {
+                    ajoAdjustConfig.Call("enablePlayStoreKidsCompliance");
                 }
             }
 
@@ -365,11 +384,12 @@ namespace AdjustSdk
             ajcAdjust.CallStatic("removeGlobalCallbackParameters");
         }
 
-        public static void ProcessDeeplink(string url) 
+        public static void ProcessDeeplink(AdjustDeeplink deeplink) 
         {
             AndroidJavaClass ajcUri = new AndroidJavaClass("android.net.Uri");
-            AndroidJavaObject ajoUri = ajcUri.CallStatic<AndroidJavaObject>("parse", url);
-            ajcAdjust.CallStatic("processDeeplink", ajoUri, ajoCurrentActivity);
+            AndroidJavaObject ajoUri = ajcUri.CallStatic<AndroidJavaObject>("parse", deeplink.Deeplink);
+            AndroidJavaObject ajoAdjustDeeplink = new AndroidJavaObject("com.adjust.sdk.AdjustDeeplink", ajoUri);
+            ajcAdjust.CallStatic("processDeeplink", ajoAdjustDeeplink, ajoCurrentActivity);
         }
 
         public static void TrackAdRevenue(AdjustAdRevenue adRevenue)
@@ -570,12 +590,76 @@ namespace AdjustSdk
             ajcAdjust.CallStatic("verifyPlayStorePurchase", ajoPurchase, onVerificationResultListener);
         }
 
-        public static void ProcessAndResolveDeeplink(string url, Action<string> resolvedLinkCallback)
+        public static void ProcessAndResolveDeeplink(AdjustDeeplink deeplink, Action<string> resolvedLinkCallback)
         {
             onDeeplinkResolvedListener = new DeeplinkResolutionListener(resolvedLinkCallback);
             AndroidJavaClass ajcUri = new AndroidJavaClass("android.net.Uri");
-            AndroidJavaObject ajoUri = ajcUri.CallStatic<AndroidJavaObject>("parse", url);
-            ajcAdjust.CallStatic("processAndResolveDeeplink", ajoUri, ajoCurrentActivity, onDeeplinkResolvedListener);
+            AndroidJavaObject ajoUri = ajcUri.CallStatic<AndroidJavaObject>("parse", deeplink.Deeplink);
+            AndroidJavaObject ajoAdjustDeeplink = new AndroidJavaObject("com.adjust.sdk.AdjustDeeplink", ajoUri);
+            ajcAdjust.CallStatic("processAndResolveDeeplink", ajoAdjustDeeplink, ajoCurrentActivity, onDeeplinkResolvedListener);
+        }
+
+        public static void VerifyAndTrackPlayStorePurchase(
+            AdjustEvent adjustEvent,
+            Action<AdjustPurchaseVerificationResult> verificationInfoCallback)
+        {
+            AndroidJavaObject ajoAdjustEvent = new AndroidJavaObject("com.adjust.sdk.AdjustEvent", adjustEvent.EventToken);
+
+            // check if user has set revenue for the event
+            if (adjustEvent.Revenue != null)
+            {
+                ajoAdjustEvent.Call("setRevenue", (double)adjustEvent.Revenue, adjustEvent.Currency);
+            }
+
+            // check if user has added any callback parameters to the event
+            if (adjustEvent.CallbackParameters != null)
+            {
+                for (int i = 0; i < adjustEvent.CallbackParameters.Count; i += 2)
+                {
+                    string key = adjustEvent.CallbackParameters[i];
+                    string value = adjustEvent.CallbackParameters[i + 1];
+                    ajoAdjustEvent.Call("addCallbackParameter", key, value);
+                }
+            }
+
+            // check if user has added any partner parameters to the event
+            if (adjustEvent.PartnerParameters != null)
+            {
+                for (int i = 0; i < adjustEvent.PartnerParameters.Count; i += 2)
+                {
+                    string key = adjustEvent.PartnerParameters[i];
+                    string value = adjustEvent.PartnerParameters[i + 1];
+                    ajoAdjustEvent.Call("addPartnerParameter", key, value);
+                }
+            }
+
+            // check if user has set deduplication ID for the event
+            if (adjustEvent.DeduplicationId != null)
+            {
+                ajoAdjustEvent.Call("setDeduplicationId", adjustEvent.DeduplicationId);
+            }
+
+            // check if user has added callback ID to the event
+            if (adjustEvent.CallbackId != null)
+            {
+                ajoAdjustEvent.Call("setCallbackId", adjustEvent.CallbackId);
+            }
+
+            // check if user has added product ID to the event
+            if (adjustEvent.ProductId != null)
+            {
+                ajoAdjustEvent.Call("setProductId", adjustEvent.ProductId);
+            }
+
+            // check if user has added purchase token to the event
+            if (adjustEvent.PurchaseToken != null)
+            {
+                ajoAdjustEvent.Call("setPurchaseToken", adjustEvent.PurchaseToken);
+            }
+
+            onVerifyAndTrackListener = new VerificationResultListener(verificationInfoCallback);
+
+            ajcAdjust.CallStatic("verifyAndTrackPlayStorePurchase", ajoAdjustEvent, onVerifyAndTrackListener);
         }
 
         // used for testing only
@@ -689,7 +773,7 @@ namespace AdjustSdk
             }
 
             // method must be lowercase to match Android method signature
-            public void onFinishedEventTrackingSucceeded(AndroidJavaObject eventSuccessData)
+            public void onEventTrackingSucceeded(AndroidJavaObject eventSuccessData)
             {
                 if (callback == null)
                 {
@@ -739,7 +823,7 @@ namespace AdjustSdk
             }
 
             // method must be lowercase to match Android method signature
-            public void onFinishedEventTrackingFailed(AndroidJavaObject eventFailureData)
+            public void onEventTrackingFailed(AndroidJavaObject eventFailureData)
             {
                 if (callback == null)
                 {
@@ -790,7 +874,7 @@ namespace AdjustSdk
             }
 
             // method must be lowercase to match Android method signature
-            public void onFinishedSessionTrackingSucceeded(AndroidJavaObject sessionSuccessData)
+            public void onSessionTrackingSucceeded(AndroidJavaObject sessionSuccessData)
             {
                 if (callback == null)
                 {
@@ -836,7 +920,7 @@ namespace AdjustSdk
             }
 
             // method must be lowercase to match Android method signature
-            public void onFinishedSessionTrackingFailed(AndroidJavaObject sessionFailureData)
+            public void onSessionTrackingFailed(AndroidJavaObject sessionFailureData)
             {
                 if (callback == null)
                 {
