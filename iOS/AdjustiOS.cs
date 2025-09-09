@@ -8,7 +8,7 @@ namespace com.adjust.sdk
 #if UNITY_IOS
     public class AdjustiOS
     {
-        private const string sdkPrefix = "unity4.38.0";
+        private const string sdkPrefix = "unity4.37.2";
 
         [DllImport("__Internal")]
         private static extern void _AdjustLaunchApp(
@@ -155,7 +155,10 @@ namespace com.adjust.sdk
 
         [DllImport("__Internal")]
         private static extern void _AdjustSetTestOptions(
-            string overwriteUrl,
+            string baseUrl,
+            string gdprUrl,
+            string subscriptionUrl,
+            string purchaseVerificationUrl,
             string extraPath,
             long timerIntervalInMilliseconds,
             long timerStartInMilliseconds,
@@ -164,9 +167,7 @@ namespace com.adjust.sdk
             int teardown,
             int deleteState,
             int noBackoffWait,
-            int adServicesFrameworkEnabled,
-            int attStatus,
-            string idfa);
+            int adServicesFrameworkEnabled);
 
         [DllImport("__Internal")]
         private static extern void _AdjustRequestTrackingAuthorizationWithCompletionHandler(string sceneName);
@@ -552,9 +553,11 @@ namespace com.adjust.sdk
         // Used for testing only.
         public static void SetTestOptions(Dictionary<string, string> testOptions)
         {
-            string overwriteUrl = testOptions[AdjustUtils.KeyTestOptionsOverwriteUrl];
+            string baseUrl = testOptions[AdjustUtils.KeyTestOptionsBaseUrl];
+            string gdprUrl = testOptions[AdjustUtils.KeyTestOptionsGdprUrl];
+            string subscriptionUrl = testOptions[AdjustUtils.KeyTestOptionsSubscriptionUrl];
+            string purchaseVerificationUrl = testOptions[AdjustUtils.KeyTestOptionsPurchaseVerificationUrl];
             string extraPath = testOptions.ContainsKey(AdjustUtils.KeyTestOptionsExtraPath) ? testOptions[AdjustUtils.KeyTestOptionsExtraPath] : null;
-            string idfa = testOptions.ContainsKey(AdjustUtils.KeyTestOptionsIdfa) ? testOptions[AdjustUtils.KeyTestOptionsIdfa] : null;
             long timerIntervalMilis = -1;
             long timerStartMilis = -1;
             long sessionIntMilis = -1;
@@ -563,7 +566,6 @@ namespace com.adjust.sdk
             bool deleteState = false;
             bool noBackoffWait = false;
             bool adServicesFrameworkEnabled = false;
-            int attStatus = -1;
 
             if (testOptions.ContainsKey(AdjustUtils.KeyTestOptionsTimerIntervalInMilliseconds)) 
             {
@@ -597,24 +599,21 @@ namespace com.adjust.sdk
             {
                 adServicesFrameworkEnabled = testOptions[AdjustUtils.KeyTestOptionsAdServicesFrameworkEnabled].ToLower() == "true";
             }
-            if (testOptions.ContainsKey(AdjustUtils.KeyTestOptionsAttStatus)) 
-            {
-                attStatus = int.Parse(testOptions[AdjustUtils.KeyTestOptionsAttStatus]);
-            }
 
             _AdjustSetTestOptions(
-                overwriteUrl,
+                baseUrl,
+                gdprUrl,
+                subscriptionUrl,
+                purchaseVerificationUrl,
                 extraPath,
                 timerIntervalMilis,
                 timerStartMilis,
                 sessionIntMilis,
-                subsessionIntMilis,
+                subsessionIntMilis, 
                 AdjustUtils.ConvertBool(teardown),
                 AdjustUtils.ConvertBool(deleteState),
                 AdjustUtils.ConvertBool(noBackoffWait),
-                AdjustUtils.ConvertBool(adServicesFrameworkEnabled),
-                attStatus,
-                idfa);
+                AdjustUtils.ConvertBool(adServicesFrameworkEnabled));
         }
 
         public static void TrackSubsessionStart(string testingArgument = null)

@@ -8,13 +8,23 @@ namespace com.adjust.sdk.test
         private AndroidJavaObject ajoTestLibrary;
         private CommandListenerAndroid onCommandReceivedListener;
 
-        public TestLibraryAndroid(string overwriteUrl, string controlUrl)
+        public TestLibraryAndroid(
+            string baseUrl,
+            string gdprUrl,
+            string subscriptionUrl,
+            string purchaseVerificationUrl,
+            string controlUrl)
         {
-            CommandExecutor commandExecutor = new CommandExecutor(this, overwriteUrl);
+            CommandExecutor commandExecutor = new CommandExecutor(
+                this,
+                baseUrl,
+                gdprUrl,
+                subscriptionUrl,
+                purchaseVerificationUrl);
             onCommandReceivedListener = new CommandListenerAndroid(commandExecutor);
             ajoTestLibrary = new AndroidJavaObject(
                 "com.adjust.test.TestLibrary",
-                overwriteUrl,
+                baseUrl,
                 controlUrl,
                 onCommandReceivedListener);
         }

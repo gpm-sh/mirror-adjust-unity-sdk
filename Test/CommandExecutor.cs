@@ -17,13 +17,24 @@ namespace com.adjust.sdk.test
 
         private Dictionary<int, AdjustConfig> _savedConfigs = new Dictionary<int, AdjustConfig>();
         private Dictionary<int, AdjustEvent> _savedEvents = new Dictionary<int, AdjustEvent>();
-        private string _overwriteUrl;
+        private string _baseUrl;
+        private string _gdprUrl;
+        private string _subscriptionUrl;
+        private string _purchaseVerificationUrl;
         private Command _command;
         private ITestLibrary _testLibrary;
 
-        public CommandExecutor(ITestLibrary testLibrary, string overwriteUrl)
+        public CommandExecutor(
+            ITestLibrary testLibrary,
+            string baseUrl,
+            string gdprUrl,
+            string subscriptionUrl,
+            string purchaseVerificationUrl)
         {
-            _overwriteUrl = overwriteUrl;
+            _baseUrl = baseUrl;
+            _gdprUrl = gdprUrl;
+            _subscriptionUrl = subscriptionUrl;
+            _purchaseVerificationUrl = purchaseVerificationUrl;
             _testLibrary = testLibrary;
         }
             
@@ -85,11 +96,10 @@ namespace com.adjust.sdk.test
         private void TestOptions()
         {
             Dictionary<string, string> testOptions = new Dictionary<string, string>();
-            testOptions[AdjustUtils.KeyTestOptionsBaseUrl] = _overwriteUrl;
-            testOptions[AdjustUtils.KeyTestOptionsGdprUrl] = _overwriteUrl;
-            testOptions[AdjustUtils.KeyTestOptionsSubscriptionUrl] = _overwriteUrl;
-            testOptions[AdjustUtils.KeyTestOptionsPurchaseVerificationUrl] = _overwriteUrl;
-            testOptions[AdjustUtils.KeyTestOptionsOverwriteUrl] = _overwriteUrl;
+            testOptions[AdjustUtils.KeyTestOptionsBaseUrl] = _baseUrl;
+            testOptions[AdjustUtils.KeyTestOptionsGdprUrl] = _gdprUrl;
+            testOptions[AdjustUtils.KeyTestOptionsSubscriptionUrl] = _subscriptionUrl;
+            testOptions[AdjustUtils.KeyTestOptionsPurchaseVerificationUrl] = _purchaseVerificationUrl;
 
             if (_command.ContainsParameter("basePath"))
             {
@@ -120,14 +130,6 @@ namespace com.adjust.sdk.test
             if (_command.ContainsParameter("adServicesFrameworkEnabled"))
             {
                 testOptions[AdjustUtils.KeyTestOptionsAdServicesFrameworkEnabled] = _command.GetFirstParameterValue("adServicesFrameworkEnabled");
-            }
-            if (_command.ContainsParameter("attStatus"))
-            {
-                testOptions[AdjustUtils.KeyTestOptionsAttStatus] = _command.GetFirstParameterValue("attStatus");
-            }
-            if (_command.ContainsParameter("idfa"))
-            {
-                testOptions[AdjustUtils.KeyTestOptionsIdfa] = _command.GetFirstParameterValue("idfa");
             }
 #if UNITY_ANDROID
             bool useTestConnectionOptions = false;
@@ -384,13 +386,6 @@ namespace com.adjust.sdk.test
                 {
                     adjustConfig.setUserAgent(userAgent);
                 }
-            }
-
-            if (_command.ContainsParameter("attConsentWaitingSeconds"))
-            {
-                var attConsentWaitingSecondsStr = _command.GetFirstParameterValue("attConsentWaitingSeconds");
-                var attConsentWaitingSeconds = int.Parse(attConsentWaitingSecondsStr, System.Globalization.CultureInfo.InvariantCulture);
-                adjustConfig.setAttConsentWaitingInterval(attConsentWaitingSeconds);
             }
 
             if (_command.ContainsParameter("deferredDeeplinkCallback"))
