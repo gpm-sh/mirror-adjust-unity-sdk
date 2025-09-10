@@ -1,6 +1,6 @@
 {
   "name": "com.adjust.sdk",
-  "version": "4.37.2-gpm.1",
+  "version": "4.37.1-gpm.1",
   "unity": "2019.4",
   "displayName": "Adjust Unity SDK (GPM Mirror)",
   "license": "MIT",
