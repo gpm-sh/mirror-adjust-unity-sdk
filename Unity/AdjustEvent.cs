@@ -15,7 +15,6 @@ namespace com.adjust.sdk
         internal List<string> callbackList;
         // iOS specific members
         internal string receipt;
-        internal string receiptBase64;
         internal bool isReceiptSet;
         // Android specific members
         internal string purchaseToken;
@@ -80,11 +79,6 @@ namespace com.adjust.sdk
         public void setReceipt(string receipt)
         {
             this.receipt = receipt;
-        }
-
-        public void setReceiptBase64(string receiptBase64)
-        {
-            this.receiptBase64 = receiptBase64;
         }
 
         // Android specific methods

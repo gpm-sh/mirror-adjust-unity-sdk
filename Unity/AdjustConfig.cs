@@ -43,7 +43,6 @@ namespace com.adjust.sdk
         internal bool? playStoreKidsAppEnabled;
         internal bool? allowSuppressLogLevel;
         internal bool? needsCost;
-        internal bool? readDeviceInfoOnceEnabled;
         internal bool launchDeferredDeeplink;
         internal AdjustLogLevel? logLevel;
         internal AdjustEnvironment environment;
@@ -63,6 +62,7 @@ namespace com.adjust.sdk
         internal string preinstallFilePath;
         internal bool? finalAndroidAttributionEnabled;
         internal string fbAppId;
+        internal bool? readDeviceInfoOnceEnabled;
         // iOS specific members
         internal bool? allowAdServicesInfoReading;
         internal bool? allowIdfaReading;
