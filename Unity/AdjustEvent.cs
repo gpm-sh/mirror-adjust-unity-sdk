@@ -9,15 +9,12 @@ namespace com.adjust.sdk
         internal string eventToken;
         internal string callbackId;
         internal string transactionId;
-        internal string productId;
         internal double? revenue;
         internal List<string> partnerList;
         internal List<string> callbackList;
         // iOS specific members
         internal string receipt;
         internal bool isReceiptSet;
-        // Android specific members
-        internal string purchaseToken;
 
         public AdjustEvent(string eventToken)
         {
@@ -51,40 +48,23 @@ namespace com.adjust.sdk
             partnerList.Add(value);
         }
 
-        public void setCallbackId(string callbackId)
-        {
-            this.callbackId = callbackId;
-        }
-
-        // iOS / Android mixed
         public void setTransactionId(string transactionId)
         {
             this.transactionId = transactionId;
         }
 
-        public void setProductId(string productId)
+        public void setCallbackId(string callbackId)
         {
-            this.productId = productId;
+            this.callbackId = callbackId;
         }
 
         // iOS specific methods
-        [Obsolete("This is an obsolete method. Please use separate setter methods for purchase verification parameters.")]
+        [Obsolete("This is an obsolete method. Please use the adjust purchase SDK for purchase verification (https://github.com/adjust/unity_purchase_sdk)")]
         public void setReceipt(string receipt, string transactionId)
         {
-            // this.receipt = receipt;
-            // this.transactionId = transactionId;
-            // this.isReceiptSet = true;
-        }
-
-        public void setReceipt(string receipt)
-        {
             this.receipt = receipt;
-        }
-
-        // Android specific methods
-        public void setPurchaseToken(string purchaseToken)
-        {
-            this.purchaseToken = purchaseToken;
+            this.transactionId = transactionId;
+            this.isReceiptSet = true;
         }
     }
 }
