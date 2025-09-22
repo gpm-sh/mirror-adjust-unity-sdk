@@ -625,7 +625,7 @@ extern "C"
 
         // Transaction date.
         if (transactionDate != NULL) {
-            NSTimeInterval transactionDateInterval = [[NSString stringWithUTF8String:transactionDate] doubleValue] / 1000.0;
+            NSTimeInterval transactionDateInterval = [[NSString stringWithUTF8String:transactionDate] doubleValue];
             NSDate *oTransactionDate = [NSDate dateWithTimeIntervalSince1970:transactionDateInterval];
             [subscription setTransactionDate:oTransactionDate];
         }
