@@ -215,11 +215,6 @@
 @property (nonatomic, copy, readwrite, nullable) NSString *urlStrategy;
 
 /**
- * @brief Enables/disables linkMe
- */
-@property (nonatomic, assign) BOOL linkMeEnabled;
-
-/**
  * @brief Get configuration object for the initialization of the Adjust SDK.
  *
  * @param appToken The App Token of your app. This unique identifier can

@@ -99,7 +99,6 @@ extern "C"
                           int allowAdServicesInfoReading,
                           int allowIdfaReading,
                           int deactivateSkAdNetworkHandling,
-                          int linkMeEnabled,
                           int needsCost,
                           int coppaCompliant,
                           int64_t secretId,
@@ -192,11 +191,6 @@ extern "C"
         // Allow IDFA reading.
         if (allowIdfaReading != -1) {
             [adjustConfig setAllowIdfaReading:(BOOL)allowIdfaReading];
-        }
-
-        // Enable LinkMe feature.
-        if (linkMeEnabled != -1) {
-            [adjustConfig setLinkMeEnabled:(BOOL)linkMeEnabled];
         }
 
         // Device known.

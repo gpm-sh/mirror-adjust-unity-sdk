@@ -16,8 +16,6 @@ namespace com.adjust.sdk
         public string costType { get; set; }
         public double? costAmount { get; set; }
         public string costCurrency { get; set; }
-        // Android only
-        public string fbInstallReferrer {get; set;}
 
         public AdjustAttribution() {}
 
@@ -49,7 +47,6 @@ namespace com.adjust.sdk
                 // value will default to null
             }
             costCurrency = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyCostCurrency);
-            fbInstallReferrer = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyFbInstallReferrer);
         }
 
         public AdjustAttribution(Dictionary<string, string> dicAttributionData)
@@ -79,7 +76,6 @@ namespace com.adjust.sdk
                 // value will default to null
             }
             costCurrency = AdjustUtils.TryGetValue(dicAttributionData, AdjustUtils.KeyCostCurrency);
-            fbInstallReferrer = AdjustUtils.TryGetValue(dicAttributionData, AdjustUtils.KeyFbInstallReferrer);
         }
     }
 }

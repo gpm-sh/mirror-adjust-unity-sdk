@@ -24,7 +24,6 @@ namespace com.adjust.sdk
         public static string KeyCostType = "costType";
         public static string KeyCostAmount = "costAmount";
         public static string KeyCostCurrency = "costCurrency";
-        public static string KeyFbInstallReferrer = "fbInstallReferrer";
 
         // For testing purposes.
         public static string KeyTestOptionsBaseUrl = "baseUrl";
