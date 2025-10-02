@@ -2,7 +2,7 @@
 //  Adjust.h
 //  Adjust SDK
 //
-//  V4.29.3
+//  V4.29.2
 //  Created by Christian Wellenbrock (@wellle) on 23rd July 2013.
 //  Copyright (c) 2012-2021 Adjust GmbH. All rights reserved.
 //
@@ -322,7 +322,7 @@ extern NSString * __nonnull const ADJDataResidencyUS;
 /**
  * Obtain singleton Adjust object.
  */
-+ (nullable instancetype)getInstance;
++ (nullable id)getInstance;
 
 - (void)appDidLaunch:(nullable ADJConfig *)adjustConfig;
 
