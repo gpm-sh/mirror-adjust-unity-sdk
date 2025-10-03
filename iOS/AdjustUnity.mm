@@ -234,8 +234,6 @@ extern "C"
                 [adjustConfig setUrlStrategy:ADJDataResidencyEU];
             } else if ([stringUrlStrategy isEqualToString:@"data-residency-tr"]) {
                 [adjustConfig setUrlStrategy:ADJDataResidencyTR];
-            } else if ([stringUrlStrategy isEqualToString:@"data-residency-us"]) {
-                [adjustConfig setUrlStrategy:ADJDataResidencyUS];
             }
         }
 
