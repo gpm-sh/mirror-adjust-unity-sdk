@@ -44,8 +44,7 @@ namespace com.adjust.sdk.test
 #endif
             // Set specific tests to run.
             // testLibrary.AddTest("current/eventBuffering/Test_EventBuffering_sensitive_packets");
-            // testLibrary.AddTest("Test_AdRevenue_ad_revenue_v2");
-            // testLibrary.AddTest("Test_AdRevenue_ad_revenue_v2_invalid");
+            // testLibrary.AddTest("Test_ThirdPartySharing_after_install");
             // testLibrary.AddTestDirectory ("current/deeplink-deferred");
 
             Log("Starting test session.");
