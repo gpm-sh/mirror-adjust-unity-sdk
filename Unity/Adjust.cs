@@ -33,10 +33,7 @@ namespace com.adjust.sdk
 
         void Awake()
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             DontDestroyOnLoad(transform.gameObject);
 
@@ -53,10 +50,7 @@ namespace com.adjust.sdk
 
         void OnApplicationPause(bool pauseStatus)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
                 // No action, iOS SDK is subscribed to iOS lifecycle notifications.
@@ -85,10 +79,7 @@ namespace com.adjust.sdk
 
         public static void start(AdjustConfig adjustConfig)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (adjustConfig == null)
             {
@@ -115,10 +106,7 @@ namespace com.adjust.sdk
 
         public static void trackEvent(AdjustEvent adjustEvent)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (adjustEvent == null)
             {
@@ -138,10 +126,7 @@ namespace com.adjust.sdk
 
         public static void setEnabled(bool enabled)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.SetEnabled(enabled);
@@ -156,10 +141,7 @@ namespace com.adjust.sdk
 
         public static bool isEnabled()
         {
-            if (IsEditor())
-            {
-                return false;
-            }
+            if (IsEditor()) { return false; }
 
 #if UNITY_IOS
             return AdjustiOS.IsEnabled();
@@ -175,10 +157,7 @@ namespace com.adjust.sdk
 
         public static void setOfflineMode(bool enabled)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.SetOfflineMode(enabled);
@@ -193,10 +172,7 @@ namespace com.adjust.sdk
 
         public static void setDeviceToken(string deviceToken)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.SetDeviceToken(deviceToken);
@@ -211,11 +187,6 @@ namespace com.adjust.sdk
 
         public static void gdprForgetMe()
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
-
 #if UNITY_IOS
             AdjustiOS.GdprForgetMe();
 #elif UNITY_ANDROID
@@ -229,11 +200,6 @@ namespace com.adjust.sdk
 
         public static void disableThirdPartySharing()
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
-
 #if UNITY_IOS
             AdjustiOS.DisableThirdPartySharing();
 #elif UNITY_ANDROID
@@ -247,10 +213,7 @@ namespace com.adjust.sdk
 
         public static void appWillOpenUrl(string url)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.AppWillOpenUrl(url);
@@ -265,10 +228,7 @@ namespace com.adjust.sdk
 
         public static void sendFirstPackages()
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.SendFirstPackages();
@@ -283,10 +243,7 @@ namespace com.adjust.sdk
 
         public static void addSessionPartnerParameter(string key, string value)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.AddSessionPartnerParameter(key, value);
@@ -301,10 +258,7 @@ namespace com.adjust.sdk
 
         public static void addSessionCallbackParameter(string key, string value)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.AddSessionCallbackParameter(key, value);
@@ -319,10 +273,7 @@ namespace com.adjust.sdk
 
         public static void removeSessionPartnerParameter(string key)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.RemoveSessionPartnerParameter(key);
@@ -337,10 +288,7 @@ namespace com.adjust.sdk
 
         public static void removeSessionCallbackParameter(string key)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.RemoveSessionCallbackParameter(key);
@@ -355,10 +303,7 @@ namespace com.adjust.sdk
 
         public static void resetSessionPartnerParameters()
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.ResetSessionPartnerParameters();
@@ -373,10 +318,7 @@ namespace com.adjust.sdk
 
         public static void resetSessionCallbackParameters()
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.ResetSessionCallbackParameters();
@@ -391,10 +333,7 @@ namespace com.adjust.sdk
 
         public static void trackAdRevenue(string source, string payload)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.TrackAdRevenue(source, payload);
@@ -409,10 +348,7 @@ namespace com.adjust.sdk
 
         public static void trackAppStoreSubscription(AdjustAppStoreSubscription subscription)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.TrackAppStoreSubscription(subscription);
@@ -427,10 +363,7 @@ namespace com.adjust.sdk
 
         public static void trackPlayStoreSubscription(AdjustPlayStoreSubscription subscription)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             Debug.Log("[Adjust]: Play Store subscription tracking is only supported for Android platform.");
@@ -443,48 +376,9 @@ namespace com.adjust.sdk
 #endif
         }
 
-        public static void trackThirdPartySharing(AdjustThirdPartySharing thirdPartySharing)
+        public static void requestTrackingAuthorizationWithCompletionHandler(Action<int> statusCallback)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
-
-#if UNITY_IOS
-            AdjustiOS.TrackThirdPartySharing(thirdPartySharing);
-#elif UNITY_ANDROID
-            AdjustAndroid.TrackThirdPartySharing(thirdPartySharing);
-#elif (UNITY_WSA || UNITY_WP8)
-            Debug.Log("[Adjust]: Third party sharing tracking is only supported for iOS and Android platforms.");
-#else
-            Debug.Log(errorMsgPlatform);
-#endif
-        }
-
-        public static void trackMeasurementConsent(bool measurementConsent)
-        {
-            if (IsEditor()) 
-            {
-                return;
-            }
-
-#if UNITY_IOS
-            AdjustiOS.TrackMeasurementConsent(measurementConsent);
-#elif UNITY_ANDROID
-            AdjustAndroid.TrackMeasurementConsent(measurementConsent);
-#elif (UNITY_WSA || UNITY_WP8)
-            Debug.Log("[Adjust]: Measurement consent tracking is only supported for iOS and Android platforms.");
-#else
-            Debug.Log(errorMsgPlatform);
-#endif
-        }
-
-        public static void requestTrackingAuthorizationWithCompletionHandler(Action<int> statusCallback, string sceneName = "Adjust")
-        {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             if (Adjust.authorizationStatusDelegates == null)
@@ -492,61 +386,19 @@ namespace com.adjust.sdk
                 Adjust.authorizationStatusDelegates = new List<Action<int>>();
             }
             Adjust.authorizationStatusDelegates.Add(statusCallback);
-            AdjustiOS.RequestTrackingAuthorizationWithCompletionHandler(sceneName);
+            AdjustiOS.RequestTrackingAuthorizationWithCompletionHandler();
 #elif UNITY_ANDROID
             Debug.Log("[Adjust]: Requesting tracking authorization is only supported for iOS platform.");
 #elif (UNITY_WSA || UNITY_WP8)
             Debug.Log("[Adjust]: Requesting tracking authorization is only supported for iOS platform.");
 #else
             Debug.Log(errorMsgPlatform);
-#endif
-        }
-
-        public static void updateConversionValue(int conversionValue)
-        {
-            if (IsEditor()) 
-            {
-                return;
-            }
-
-#if UNITY_IOS
-            AdjustiOS.UpdateConversionValue(conversionValue);
-#elif UNITY_ANDROID
-            Debug.Log("[Adjust]: Updating SKAdNetwork conversion value is only supported for iOS platform.");
-#elif (UNITY_WSA || UNITY_WP8)
-            Debug.Log("[Adjust]: Updating SKAdNetwork conversion value is only supported for iOS platform.");
-#else
-            Debug.Log(errorMsgPlatform);
-#endif
-        }
-
-        public static int getAppTrackingAuthorizationStatus()
-        {
-            if (IsEditor())
-            {
-                return -1;
-            }
-
-#if UNITY_IOS
-            return AdjustiOS.GetAppTrackingAuthorizationStatus();
-#elif UNITY_ANDROID
-            Debug.Log("[Adjust]: Error! App tracking authorization status is only supported for iOS platform.");
-            return -1;
-#elif (UNITY_WSA || UNITY_WP8)
-            Debug.Log("[Adjust]: Error! App tracking authorization status is only supported for iOS platform.");
-            return -1;
-#else
-            Debug.Log(errorMsgPlatform);
-            return -1;
 #endif
         }
 
         public static string getAdid()
         {
-            if (IsEditor())
-            {
-                return string.Empty;
-            }
+            if (IsEditor()) { return string.Empty; }
 
 #if UNITY_IOS
             return AdjustiOS.GetAdid();
@@ -562,10 +414,7 @@ namespace com.adjust.sdk
 
         public static AdjustAttribution getAttribution()
         {
-            if (IsEditor())
-            {
-                return null;
-            }
+            if (IsEditor()) { return null; }
 
 #if UNITY_IOS
             return AdjustiOS.GetAttribution();
@@ -581,10 +430,7 @@ namespace com.adjust.sdk
 
         public static string getWinAdid()
         {
-            if (IsEditor())
-            {
-                return string.Empty;
-            }
+            if (IsEditor()) { return string.Empty; }
 
 #if UNITY_IOS
             Debug.Log("[Adjust]: Error! Windows Advertising ID is not available on iOS platform.");
@@ -602,10 +448,7 @@ namespace com.adjust.sdk
 
         public static string getIdfa()
         {
-            if (IsEditor())
-            {
-                return string.Empty;
-            }
+            if (IsEditor()) { return string.Empty; }
 
 #if UNITY_IOS
             return AdjustiOS.GetIdfa();
@@ -623,10 +466,7 @@ namespace com.adjust.sdk
 
         public static string getSdkVersion()
         {
-            if (IsEditor())
-            {
-                return string.Empty;
-            }
+            if (IsEditor()) { return string.Empty; }
 
 #if UNITY_IOS
             return AdjustiOS.GetSdkVersion();
@@ -643,10 +483,7 @@ namespace com.adjust.sdk
         [Obsolete("This method is intended for testing purposes only. Do not use it.")]
         public static void setReferrer(string referrer)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             Debug.Log("[Adjust]: Install referrer is not available on iOS platform.");
@@ -661,10 +498,7 @@ namespace com.adjust.sdk
 
         public static void getGoogleAdId(Action<string> onDeviceIdsRead)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             Debug.Log("[Adjust]: Google Play Advertising ID is not available on iOS platform.");
@@ -681,10 +515,7 @@ namespace com.adjust.sdk
 
         public static string getAmazonAdId()
         {
-            if (IsEditor())
-            {
-                return string.Empty;
-            }
+            if (IsEditor()) { return string.Empty; }
 
 #if UNITY_IOS
             Debug.Log("[Adjust]: Amazon Advertising ID is not available on iOS platform.");
@@ -703,10 +534,7 @@ namespace com.adjust.sdk
 #if UNITY_IOS
         public void GetNativeAttribution(string attributionData)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (Adjust.attributionChangedDelegate == null)
             {
@@ -720,10 +548,7 @@ namespace com.adjust.sdk
 
         public void GetNativeEventSuccess(string eventSuccessData)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (Adjust.eventSuccessDelegate == null)
             {
@@ -737,10 +562,7 @@ namespace com.adjust.sdk
 
         public void GetNativeEventFailure(string eventFailureData)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (Adjust.eventFailureDelegate == null)
             {
@@ -754,10 +576,7 @@ namespace com.adjust.sdk
 
         public void GetNativeSessionSuccess(string sessionSuccessData)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (Adjust.sessionSuccessDelegate == null)
             {
@@ -771,10 +590,7 @@ namespace com.adjust.sdk
 
         public void GetNativeSessionFailure(string sessionFailureData)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (Adjust.sessionFailureDelegate == null)
             {
@@ -788,10 +604,7 @@ namespace com.adjust.sdk
 
         public void GetNativeDeferredDeeplink(string deeplinkURL)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (Adjust.deferredDeeplinkDelegate == null)
             {
@@ -804,10 +617,7 @@ namespace com.adjust.sdk
 
         public void GetAuthorizationStatus(string authorizationStatus)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
             if (Adjust.authorizationStatusDelegates == null)
             {
@@ -835,10 +645,7 @@ namespace com.adjust.sdk
 
         public static void SetTestOptions(Dictionary<string, string> testOptions)
         {
-            if (IsEditor()) 
-            {
-                return;
-            }
+            if (IsEditor()) { return; }
 
 #if UNITY_IOS
             AdjustiOS.SetTestOptions(testOptions);
