@@ -169,11 +169,6 @@
 @property (nonatomic, assign) BOOL isDeviceKnown;
 
 /**
- * @brief Set if cost data is needed in attribution response.
- */
-@property (nonatomic, assign) BOOL needsCost;
-
-/**
  * @brief Adjust app secret id.
  */
 @property (nonatomic, copy, readonly, nullable) NSString *secretId;

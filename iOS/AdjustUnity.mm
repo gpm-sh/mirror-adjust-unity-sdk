@@ -68,13 +68,7 @@ BOOL isStringValid(const char* cString) {
 
 void addValueOrEmpty(NSMutableDictionary *dictionary, NSString *key, NSObject *value) {
     if (nil != value) {
-        if ([value isKindOfClass:[NSString class]]) {
-            [dictionary setObject:[NSString stringWithFormat:@"%@", value] forKey:key];
-        } else if ([value isKindOfClass:[NSNumber class]]) {
-            [dictionary setObject:[NSString stringWithFormat:@"%@", [((NSNumber *)value) stringValue]] forKey:key];
-        } else {
-            [dictionary setObject:@"" forKey:key];
-        }
+        [dictionary setObject:[NSString stringWithFormat:@"%@", value] forKey:key];
     } else {
         [dictionary setObject:@"" forKey:key];
     }
@@ -100,7 +94,6 @@ extern "C"
                           int allowiAdInfoReading,
                           int allowIdfaReading,
                           int deactivateSkAdNetworkHandling,
-                          int needsCost,
                           int64_t secretId,
                           int64_t info1,
                           int64_t info2,
@@ -193,11 +186,6 @@ extern "C"
         // Delay start.
         if (delayStart != -1) {
             [adjustConfig setDelayStart:delayStart];
-        }
-
-        // Cost data in attribution callback.
-        if (needsCost != -1) {
-            [adjustConfig setNeedsCost:(BOOL)needsCost];
         }
 
         // User agent.
@@ -412,9 +400,6 @@ extern "C"
         addValueOrEmpty(dictionary, @"adgroup", attribution.adgroup);
         addValueOrEmpty(dictionary, @"clickLabel", attribution.clickLabel);
         addValueOrEmpty(dictionary, @"adid", attribution.adid);
-        addValueOrEmpty(dictionary, @"costType", attribution.costType);
-        addValueOrEmpty(dictionary, @"costAmount", attribution.costAmount);
-        addValueOrEmpty(dictionary, @"costCurrency", attribution.costCurrency);
 
         NSData *dataAttribution = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
         NSString *stringAttribution = [[NSString alloc] initWithBytes:[dataAttribution bytes]
