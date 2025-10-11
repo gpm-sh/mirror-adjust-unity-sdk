@@ -25,8 +25,7 @@ public class AdjustEditor : AssetPostprocessor
     {
         AdjustSettings.IsiOS14ProcessingEnabled = !AdjustSettings.IsiOS14ProcessingEnabled;
         EditorUtility.SetDirty(AdjustSettings.Instance);
-        EditorUtility.DisplayDialog("Adjust SDK", "iOS 14 support is now " + (AdjustSettings.IsiOS14ProcessingEnabled ? "enabled." : "disabled.") +
-            "\nNote: Make sure to save your project files in order for this change to take effect.", "OK");
+        EditorUtility.DisplayDialog("Adjust SDK", "iOS 14 support is now " + (AdjustSettings.IsiOS14ProcessingEnabled ? "enabled." : "disabled."), "OK");
     }
 
     [MenuItem("Assets/Adjust/Check Post Processing Status")]
@@ -40,8 +39,7 @@ public class AdjustEditor : AssetPostprocessor
     {
         AdjustSettings.IsPostProcessingEnabled = !AdjustSettings.IsPostProcessingEnabled;
         EditorUtility.SetDirty(AdjustSettings.Instance);
-        EditorUtility.DisplayDialog("Adjust SDK", "The post processing for Adjust SDK is now " + (AdjustSettings.IsPostProcessingEnabled ? "enabled." : "disabled.") +
-            "\nNote: Make sure to save your project files in order for this change to take effect.", "OK");
+        EditorUtility.DisplayDialog("Adjust SDK", "The post processing for Adjust SDK is now " + (AdjustSettings.IsPostProcessingEnabled ? "enabled." : "disabled."), "OK");
     }
 
     [MenuItem("Assets/Adjust/Export Unity Package")]
