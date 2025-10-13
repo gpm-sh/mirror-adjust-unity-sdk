@@ -14,32 +14,35 @@ using UnityEditor.iOS.Xcode;
 
 public class AdjustEditor : AssetPostprocessor
 {
-    [MenuItem("Assets/Adjust/Check iOS 14 Support Status")]
-    public static void CheckIOS14SupportStatus()
+    private static bool isPostProcessingEnabled = true;
+    private static String ios14EditorPrefsKey = "adjustiOS14Support";
+
+    [MenuItem("Assets/Adjust/Is iOS 14 Support Enabled?")]
+    public static void IsiOS14SupportEnabled()
     {
-        EditorUtility.DisplayDialog("Adjust SDK", "iOS 14 support is " + (AdjustSettings.IsiOS14ProcessingEnabled ? "enabled." : "disabled."), "OK");
+        bool isEnabled = EditorPrefs.GetBool(ios14EditorPrefsKey, false);
+        EditorUtility.DisplayDialog("Adjust SDK", "iOS 14 support is " + (isEnabled ? "enabled." : "disabled."), "OK");
     }
 
-    [MenuItem("Assets/Adjust/Toggle iOS 14 Support Status")]
-    public static void ToggleiOS14SupportStatus()
+    [MenuItem("Assets/Adjust/Toggle iOS 14 Support")]
+    public static void ToggleiOS14Support()
     {
-        AdjustSettings.IsiOS14ProcessingEnabled = !AdjustSettings.IsiOS14ProcessingEnabled;
-        EditorUtility.SetDirty(AdjustSettings.Instance);
-        EditorUtility.DisplayDialog("Adjust SDK", "iOS 14 support is now " + (AdjustSettings.IsiOS14ProcessingEnabled ? "enabled." : "disabled."), "OK");
+        bool isEnabled = !EditorPrefs.GetBool(ios14EditorPrefsKey, false);
+        EditorPrefs.SetBool(ios14EditorPrefsKey, isEnabled);
+        EditorUtility.DisplayDialog("Adjust SDK", "iOS 14 support is now " + (isEnabled ? "enabled." : "disabled."), "OK");
     }
 
-    [MenuItem("Assets/Adjust/Check Post Processing Status")]
-    public static void CheckPostProcessingStatus()
+    [MenuItem("Assets/Adjust/Is Post Processing Enabled?")]
+    public static void IsPostProcessingEnabled()
     {
-        EditorUtility.DisplayDialog("Adjust SDK", "The post processing for Adjust SDK is " + (AdjustSettings.IsPostProcessingEnabled ? "enabled." : "disabled."), "OK");
+        EditorUtility.DisplayDialog("Adjust SDK", "The post processing for Adjust SDK is " + (isPostProcessingEnabled ? "enabled." : "disabled."), "OK");
     }
 
-    [MenuItem("Assets/Adjust/Toggle Post Processing Status")]
-    public static void TogglePostProcessingStatus()
+    [MenuItem("Assets/Adjust/Toggle Post Processing Permission")]
+    public static void TogglePostProcessingPermission()
     {
-        AdjustSettings.IsPostProcessingEnabled = !AdjustSettings.IsPostProcessingEnabled;
-        EditorUtility.SetDirty(AdjustSettings.Instance);
-        EditorUtility.DisplayDialog("Adjust SDK", "The post processing for Adjust SDK is now " + (AdjustSettings.IsPostProcessingEnabled ? "enabled." : "disabled."), "OK");
+        isPostProcessingEnabled = !isPostProcessingEnabled;
+        EditorUtility.DisplayDialog("Adjust SDK", "The post processing for Adjust SDK is now " + (isPostProcessingEnabled ? "enabled." : "disabled."), "OK");
     }
 
     [MenuItem("Assets/Adjust/Export Unity Package")]
@@ -57,7 +60,6 @@ public class AdjustEditor : AssetPostprocessor
         assetsToExport.Add(assetsPath + "/Android/AdjustAndroidManifest.xml");
 
         assetsToExport.Add(assetsPath + "/Editor/AdjustEditor.cs");
-        assetsToExport.Add(assetsPath + "/Editor/AdjustSettings.cs");
 
         assetsToExport.Add(assetsPath + "/ExampleGUI/ExampleGUI.cs");
         assetsToExport.Add(assetsPath + "/ExampleGUI/ExampleGUI.prefab");
@@ -121,7 +123,7 @@ public class AdjustEditor : AssetPostprocessor
     {
         // Check what is user setting about allowing Adjust SDK to perform post build tasks.
         // If user disabled it, oh well, we won't do a thing.
-        if (!AdjustSettings.IsPostProcessingEnabled)
+        if (!isPostProcessingEnabled)
         {
             UnityEngine.Debug.Log("[Adjust]: You have forbidden the Adjust SDK to perform post processing tasks.");
             UnityEngine.Debug.Log("[Adjust]: Skipping post processing tasks.");
@@ -175,7 +177,7 @@ public class AdjustEditor : AssetPostprocessor
             xcodeProject.AddFrameworkToProject(xcodeTarget, "CoreTelephony.framework", true);
             UnityEngine.Debug.Log("[Adjust]: CoreTelephony.framework added successfully.");
 
-            if (AdjustSettings.IsiOS14ProcessingEnabled)
+            if (EditorPrefs.GetBool(ios14EditorPrefsKey, false))
             {
                 UnityEngine.Debug.Log("[Adjust]: Xcode project being built with iOS 14 support.");
 
@@ -203,11 +205,6 @@ public class AdjustEditor : AssetPostprocessor
             xcodeProject.AddBuildProperty(xcodeTarget, "OTHER_LDFLAGS", "-ObjC");
 
             UnityEngine.Debug.Log("[Adjust]: -ObjC successfully added to other linker flags.");
-
-            if (xcodeProject.ContainsFileByProjectPath("Libraries/Adjust/iOS/AdjustSigSdk.a"))
-            {
-                xcodeProject.AddBuildProperty(xcodeTarget, "OTHER_LDFLAGS", "-force_load $(PROJECT_DIR)/Libraries/Adjust/iOS/AdjustSigSdk.a");
-            }
 
             // Save the changes to Xcode project file.
             xcodeProject.WriteToFile(xcodeProjectPath);
