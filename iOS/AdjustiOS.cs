@@ -8,7 +8,7 @@ namespace com.adjust.sdk
 #if UNITY_IOS
     public class AdjustiOS
     {
-        private const string sdkPrefix = "unity4.23.0";
+        private const string sdkPrefix = "unity4.22.1";
 
         [DllImport("__Internal")]
         private static extern void _AdjustLaunchApp(
@@ -18,7 +18,6 @@ namespace com.adjust.sdk
             string userAgent,
             string defaultTracker,
             string extenralDeviceId,
-            string urlStrategy,
             string sceneName,
             int allowSuppressLogLevel,
             int logLevel,
@@ -27,7 +26,6 @@ namespace com.adjust.sdk
             int sendInBackground,
             int allowiAdInfoReading,
             int allowIdfaReading,
-            int deactivateSkAdNetworkHandling,
             long secretId,
             long info1,
             long info2,
@@ -139,9 +137,6 @@ namespace com.adjust.sdk
             int iAdFrameworkEnabled);
 
         [DllImport("__Internal")]
-        private static extern void _AdjustRequestTrackingAuthorizationWithCompletionHandler();
-
-        [DllImport("__Internal")]
         private static extern void _AdjustTrackSubsessionStart();
 
         [DllImport("__Internal")]
@@ -156,7 +151,6 @@ namespace com.adjust.sdk
             string userAgent = adjustConfig.userAgent != null ? adjustConfig.userAgent : "ADJ_INVALID";
             string defaultTracker = adjustConfig.defaultTracker != null ? adjustConfig.defaultTracker : "ADJ_INVALID";
             string externalDeviceId = adjustConfig.externalDeviceId != null ? adjustConfig.externalDeviceId : "ADJ_INVALID";
-            string urlStrategy = adjustConfig.urlStrategy != null ? adjustConfig.urlStrategy : "ADJ_INVALID";
             string environment = adjustConfig.environment.ToLowercaseString();
             long info1 = AdjustUtils.ConvertLong(adjustConfig.info1);
             long info2 = AdjustUtils.ConvertLong(adjustConfig.info2);
@@ -172,7 +166,6 @@ namespace com.adjust.sdk
             int allowIdfaReading = AdjustUtils.ConvertBool(adjustConfig.allowIdfaReading);
             int allowSuppressLogLevel = AdjustUtils.ConvertBool(adjustConfig.allowSuppressLogLevel);
             int launchDeferredDeeplink = AdjustUtils.ConvertBool(adjustConfig.launchDeferredDeeplink);
-            int deactivateSkAdNetworkHandling = AdjustUtils.ConvertBool(adjustConfig.skAdNetworkHandling);
             int isAttributionCallbackImplemented = AdjustUtils.ConvertBool(adjustConfig.getAttributionChangedDelegate() != null);
             int isEventSuccessCallbackImplemented = AdjustUtils.ConvertBool(adjustConfig.getEventSuccessDelegate() != null);
             int isEventFailureCallbackImplemented = AdjustUtils.ConvertBool(adjustConfig.getEventFailureDelegate() != null);
@@ -187,7 +180,6 @@ namespace com.adjust.sdk
                 userAgent,
                 defaultTracker,
                 externalDeviceId,
-                urlStrategy,
                 sceneName,
                 allowSuppressLogLevel,
                 logLevel,
@@ -196,7 +188,6 @@ namespace com.adjust.sdk
                 sendInBackground,
                 allowiAdInfoReading,
                 allowIdfaReading,
-                deactivateSkAdNetworkHandling,
                 secretId,
                 info1,
                 info2,
@@ -310,11 +301,6 @@ namespace com.adjust.sdk
                 salesRegion,
                 stringJsonCallbackParameters,
                 stringJsonPartnerParameters);
-        }
-
-        public static void RequestTrackingAuthorizationWithCompletionHandler()
-        {
-            _AdjustRequestTrackingAuthorizationWithCompletionHandler();
         }
 
         public static void SetDeviceToken(string deviceToken)

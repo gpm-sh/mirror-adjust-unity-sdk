@@ -84,7 +84,6 @@ extern "C"
                           const char* userAgent,
                           const char* defaultTracker,
                           const char* externalDeviceId,
-                          const char* urlStrategy,
                           const char* sceneName,
                           int allowSuppressLogLevel,
                           int logLevel,
@@ -93,7 +92,6 @@ extern "C"
                           int sendInBackground,
                           int allowiAdInfoReading,
                           int allowIdfaReading,
-                          int deactivateSkAdNetworkHandling,
                           int64_t secretId,
                           int64_t info1,
                           int64_t info2,
@@ -113,7 +111,6 @@ extern "C"
         NSString *stringUserAgent = isStringValid(userAgent) == true ? [NSString stringWithUTF8String:userAgent] : nil;
         NSString *stringDefaultTracker = isStringValid(defaultTracker) == true ? [NSString stringWithUTF8String:defaultTracker] : nil;
         NSString *stringExternalDeviceId = isStringValid(externalDeviceId) == true ? [NSString stringWithUTF8String:externalDeviceId] : nil;
-        NSString *stringUrlStrategy = isStringValid(urlStrategy) == true ? [NSString stringWithUTF8String:urlStrategy] : nil;
         NSString *stringSceneName = isStringValid(sceneName) == true ? [NSString stringWithUTF8String:sceneName] : nil;
 
         ADJConfig *adjustConfig;
@@ -168,11 +165,6 @@ extern "C"
             [adjustConfig setAllowiAdInfoReading:(BOOL)allowiAdInfoReading];
         }
 
-        // Deactivate default SKAdNetwork handling.
-        if (deactivateSkAdNetworkHandling != -1) {
-            [adjustConfig deactivateSKAdNetworkHandling];
-        }
-
         // Allow IDFA reading.
         if (allowIdfaReading != -1) {
             [adjustConfig setAllowIdfaReading:(BOOL)allowIdfaReading];
@@ -199,17 +191,8 @@ extern "C"
         }
 
         // External device identifier.
-        if (stringExternalDeviceId != nil) {
+        if (externalDeviceId != nil) {
             [adjustConfig setExternalDeviceId:stringExternalDeviceId];
-        }
-
-        // URL strategy.
-        if (stringUrlStrategy != nil) {
-            if ([stringUrlStrategy isEqualToString:@"china"]) {
-                [adjustConfig setUrlStrategy:ADJUrlStrategyChina];
-            } else if ([stringUrlStrategy isEqualToString:@"india"]) {
-                [adjustConfig setUrlStrategy:ADJUrlStrategyIndia];
-            }
         }
 
         // App secret.
@@ -554,14 +537,6 @@ extern "C"
         
         // Track subscription.
         [Adjust trackSubscription:subscription];
-    }
-
-    void _AdjustRequestTrackingAuthorizationWithCompletionHandler() {
-        [Adjust requestTrackingAuthorizationWithCompletionHandler:^(NSUInteger status) {
-            NSString *stringStatus = [NSString stringWithFormat:@"%tu", status];
-            const char* charStatus = [stringStatus UTF8String];
-            UnitySendMessage([@"Adjust" UTF8String], "GetAuthorizationStatus", charStatus);
-        }];
     }
 
     void _AdjustSetTestOptions(const char* baseUrl,
