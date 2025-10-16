@@ -16,16 +16,15 @@ namespace com.adjust.sdk.test
 #elif UNITY_ANDROID
         private const string PORT = ":8443";
         private const string PROTOCOL = "https://";
-        private const string IP = "192.168.86.32";
+        private const string IP = "192.168.2.101";
 #elif UNITY_IOS
         private const string PORT = ":8080";
         private const string PROTOCOL = "http://";
-        private const string IP = "192.168.86.32";
+        private const string IP = "192.168.2.101";
         private TestLibraryiOS _testLibraryiOS;
 #endif
         private const string BASE_URL = PROTOCOL + IP + PORT;
         private const string GDPR_URL = PROTOCOL + IP + PORT;
-        private const string SUBSCRIPTION_URL = PROTOCOL + IP + PORT;
         private const string CONTROL_URL = "ws://" + IP + ":1987";
 
         void OnGUI()
@@ -54,9 +53,9 @@ namespace com.adjust.sdk.test
         private ITestLibrary GetPlatformSpecificTestLibrary()
         {
 #if UNITY_IOS
-            return new TestLibraryiOS(BASE_URL, GDPR_URL, SUBSCRIPTION_URL, CONTROL_URL);
+            return new TestLibraryiOS(BASE_URL, CONTROL_URL, GDPR_URL);
 #elif UNITY_ANDROID
-            return new TestLibraryAndroid(BASE_URL, GDPR_URL, SUBSCRIPTION_URL, CONTROL_URL);
+            return new TestLibraryAndroid(BASE_URL, CONTROL_URL, GDPR_URL);
 #elif (UNITY_WSA || UNITY_WP8)
             return new TestLibraryWindows(BASE_URL, CONTROL_URL, GDPR_URL);
 #else

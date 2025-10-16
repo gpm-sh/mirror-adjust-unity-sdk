@@ -2,7 +2,7 @@
 //  Adjust.h
 //  Adjust
 //
-//  V4.22.0
+//  V4.21.3
 //  Created by Christian Wellenbrock (wellle) on 23rd July 2013.
 //  Copyright © 2012-2017 Adjust GmbH. All rights reserved.
 //
@@ -10,14 +10,13 @@
 #import "ADJEvent.h"
 #import "ADJConfig.h"
 #import "ADJAttribution.h"
-#import "ADJSubscription.h"
 
 @interface AdjustTestOptions : NSObject
 
 @property (nonatomic, copy, nullable) NSString *baseUrl;
 @property (nonatomic, copy, nullable) NSString *gdprUrl;
-@property (nonatomic, copy, nullable) NSString *subscriptionUrl;
-@property (nonatomic, copy, nullable) NSString *extraPath;
+@property (nonatomic, copy, nullable) NSString *basePath;
+@property (nonatomic, copy, nullable) NSString *gdprPath;
 @property (nonatomic, copy, nullable) NSNumber *timerIntervalInMilliseconds;
 @property (nonatomic, copy, nullable) NSNumber *timerStartInMilliseconds;
 @property (nonatomic, copy, nullable) NSNumber *sessionIntervalInMilliseconds;
@@ -268,13 +267,6 @@ extern NSString * __nonnull const ADJAdRevenueSourceTapdaq;
 + (void)disableThirdPartySharing;
 
 /**
- * @brief Track subscription.
- *
- * @param subscription Subscription object.
- */
-+ (void)trackSubscription:(nonnull ADJSubscription *)subscription;
-
-/**
  * Obtain singleton Adjust object.
  */
 + (nullable id)getInstance;
@@ -318,8 +310,6 @@ extern NSString * __nonnull const ADJAdRevenueSourceTapdaq;
 - (void)gdprForgetMe;
 
 - (void)trackAdRevenue:(nonnull NSString *)source payload:(nonnull NSData *)payload;
-
-- (void)trackSubscription:(nonnull ADJSubscription *)subscription;
 
 - (BOOL)isEnabled;
 

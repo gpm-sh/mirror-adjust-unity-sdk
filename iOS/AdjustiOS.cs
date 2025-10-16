@@ -8,7 +8,7 @@ namespace com.adjust.sdk
 #if UNITY_IOS
     public class AdjustiOS
     {
-        private const string sdkPrefix = "unity4.22.0";
+        private const string sdkPrefix = "unity4.21.3";
 
         [DllImport("__Internal")]
         private static extern void _AdjustLaunchApp(
@@ -110,23 +110,11 @@ namespace com.adjust.sdk
         private static extern void _AdjustTrackAdRevenue(string source, string payload);
 
         [DllImport("__Internal")]
-        private static extern void _AdjustTrackAppStoreSubscription(
-            string price,
-            string currency,
-            string transactionId,
-            string receipt,
-            string billingStore,
-            string transactionDate,
-            string salesRegion,
-            string jsonCallbackParameters,
-            string jsonPartnerParameters);
-
-        [DllImport("__Internal")]
         private static extern void _AdjustSetTestOptions(
             string baseUrl,
+            string basePath,
             string gdprUrl,
-            string subscriptionUrl,
-            string extraPath,
+            string gdprPath,
             long timerIntervalInMilliseconds,
             long timerStartInMilliseconds,
             long sessionIntervalInMilliseconds,
@@ -212,10 +200,10 @@ namespace com.adjust.sdk
             string receipt = adjustEvent.receipt;
             string transactionId = adjustEvent.transactionId;
             string callbackId = adjustEvent.callbackId;
-            string stringJsonCallbackParameters = AdjustUtils.ConvertListToJson(adjustEvent.callbackList);
+            string stringJsonCallBackParameters = AdjustUtils.ConvertListToJson(adjustEvent.callbackList);
             string stringJsonPartnerParameters = AdjustUtils.ConvertListToJson(adjustEvent.partnerList);
 
-            _AdjustTrackEvent(eventToken, revenue, currency, receipt, transactionId, callbackId, isReceiptSet, stringJsonCallbackParameters, stringJsonPartnerParameters);
+            _AdjustTrackEvent(eventToken, revenue, currency, receipt, transactionId, callbackId, isReceiptSet, stringJsonCallBackParameters, stringJsonPartnerParameters);
         }        
 
         public static void SetEnabled(bool enabled)
@@ -279,30 +267,6 @@ namespace com.adjust.sdk
             _AdjustTrackAdRevenue(source, payload);
         }
 
-        public static void TrackAppStoreSubscription(AdjustAppStoreSubscription subscription)
-        {
-            string price = subscription.price;
-            string currency = subscription.currency;
-            string transactionId = subscription.transactionId;
-            string receipt = subscription.receipt;
-            string billingStore = subscription.billingStore;
-            string transactionDate = subscription.transactionDate;
-            string salesRegion = subscription.salesRegion;
-            string stringJsonCallbackParameters = AdjustUtils.ConvertListToJson(subscription.callbackList);
-            string stringJsonPartnerParameters = AdjustUtils.ConvertListToJson(subscription.partnerList);
-            
-            _AdjustTrackAppStoreSubscription(
-                price,
-                currency,
-                transactionId,
-                receipt,
-                billingStore,
-                transactionDate,
-                salesRegion,
-                stringJsonCallbackParameters,
-                stringJsonPartnerParameters);
-        }
-
         public static void SetDeviceToken(string deviceToken)
         {
             _AdjustSetDeviceToken(deviceToken);
@@ -350,8 +314,8 @@ namespace com.adjust.sdk
         {
             string baseUrl = testOptions[AdjustUtils.KeyTestOptionsBaseUrl];
             string gdprUrl = testOptions[AdjustUtils.KeyTestOptionsGdprUrl];
-            string subscriptionUrl = testOptions[AdjustUtils.KeyTestOptionsSubscriptionUrl];
-            string extraPath = testOptions.ContainsKey(AdjustUtils.KeyTestOptionsExtraPath) ? testOptions[AdjustUtils.KeyTestOptionsExtraPath] : null;
+            string basePath = testOptions.ContainsKey(AdjustUtils.KeyTestOptionsBasePath) ? testOptions[AdjustUtils.KeyTestOptionsBasePath] : null;
+            string gdprPath = testOptions.ContainsKey(AdjustUtils.KeyTestOptionsGdprPath) ? testOptions[AdjustUtils.KeyTestOptionsGdprPath] : null;
             long timerIntervalMilis = -1;
             long timerStartMilis = -1;
             long sessionIntMilis = -1;
@@ -396,9 +360,9 @@ namespace com.adjust.sdk
 
             _AdjustSetTestOptions(
                 baseUrl,
+                basePath,
                 gdprUrl,
-                subscriptionUrl,
-                extraPath,
+                gdprPath,
                 timerIntervalMilis,
                 timerStartMilis,
                 sessionIntMilis,
