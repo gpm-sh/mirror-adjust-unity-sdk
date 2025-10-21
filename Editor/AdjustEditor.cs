@@ -135,11 +135,7 @@ public class AdjustEditor : AssetPostprocessor
             // - AdSupport.framework
             // - iAd.framework
 
-#if UNITY_2019_3_OR_NEWER
-            string xcodeTarget = xcodeProject.GetUnityFrameworkTargetGuid();
-#else
             string xcodeTarget = xcodeProject.TargetGuidByName("Unity-iPhone");
-#endif
             
             UnityEngine.Debug.Log("[Adjust]: Adding AdSupport.framework to Xcode project.");
             xcodeProject.AddFrameworkToProject(xcodeTarget, "AdSupport.framework", true);
@@ -216,35 +212,25 @@ public class AdjustEditor : AssetPostprocessor
             XmlDocument manifestFile = new XmlDocument();
             manifestFile.Load(appManifestPath);
             
-            bool manifestHasChanged = false;
-            
             // Add needed permissions if they are missing.
-            manifestHasChanged |= AddPermissions(manifestFile);
+            AddPermissions(manifestFile);
 
             // Add intent filter to main activity if it is missing.
-            manifestHasChanged |= AddBroadcastReceiver(manifestFile);
+            AddBroadcastReceiver(manifestFile);
 
-            if (manifestHasChanged)
-            {
-                // Save the changes.
-                manifestFile.Save(appManifestPath);
+            // Save the changes.
+            manifestFile.Save(appManifestPath);
 
-                // Clean the manifest file.
-                CleanManifestFile(appManifestPath);
+            // Clean the manifest file.
+            CleanManifestFile(appManifestPath);
 
-                UnityEngine.Debug.Log("[Adjust]: App's AndroidManifest.xml file check and potential modification completed.");
-                UnityEngine.Debug.Log("[Adjust]: Please check if any error message was displayed during this process " 
-                                      + "and make sure to fix all issues in order to properly use the Adjust SDK in your app.");                
-            }
-            else
-            {
-                UnityEngine.Debug.Log("[Adjust]: App's AndroidManifest.xml file check completed.");
-                UnityEngine.Debug.Log("[Adjust]: No modifications performed due to app's AndroidManifest.xml file compatibility.");
-            }
+            UnityEngine.Debug.Log("[Adjust]: App's AndroidManifest.xml file check and potential modification completed.");
+            UnityEngine.Debug.Log("[Adjust]: Please check if any error message was displayed during this process " 
+                + "and make sure to fix all issues in order to properly use the Adjust SDK in your app.");
         }
     }
 
-    private static bool AddPermissions(XmlDocument manifest)
+    private static void AddPermissions(XmlDocument manifest)
     {
         // The Adjust SDK needs two permissions to be added to you app's manifest file:
         // <uses-permission android:name="android.permission.INTERNET" />
@@ -288,8 +274,6 @@ public class AdjustEditor : AssetPostprocessor
             }
         }
 
-        bool manifestHasChanged = false;
-
         // If android.permission.INTERNET permission is missing, add it.
         if (!hasInternetPermission)
         {
@@ -297,7 +281,6 @@ public class AdjustEditor : AssetPostprocessor
             element.SetAttribute("android__name", "android.permission.INTERNET");
             manifestRoot.AppendChild(element);
             UnityEngine.Debug.Log("[Adjust]: android.permission.INTERNET permission successfully added to your app's AndroidManifest.xml file.");
-            manifestHasChanged = true;
         }
         else
         {
@@ -311,7 +294,6 @@ public class AdjustEditor : AssetPostprocessor
             element.SetAttribute("android__name", "android.permission.ACCESS_WIFI_STATE");
             manifestRoot.AppendChild(element);
             UnityEngine.Debug.Log("[Adjust]: android.permission.ACCESS_WIFI_STATE permission successfully added to your app's AndroidManifest.xml file.");
-            manifestHasChanged = true;
         }
         else
         {
@@ -325,7 +307,6 @@ public class AdjustEditor : AssetPostprocessor
             element.SetAttribute("android__name", "android.permission.ACCESS_NETWORK_STATE");
             manifestRoot.AppendChild(element);
             UnityEngine.Debug.Log("[Adjust]: android.permission.ACCESS_NETWORK_STATE permission successfully added to your app's AndroidManifest.xml file.");
-            manifestHasChanged = true;
         }
         else
         {
@@ -339,17 +320,14 @@ public class AdjustEditor : AssetPostprocessor
             element.SetAttribute("android__name", "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE");
             manifestRoot.AppendChild(element);
             UnityEngine.Debug.Log("[Adjust]: com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE permission successfully added to your app's AndroidManifest.xml file.");
-            manifestHasChanged = true;
         }
         else
         {
             UnityEngine.Debug.Log("[Adjust]: Your app's AndroidManifest.xml file already contains com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE permission.");
         }
-
-        return manifestHasChanged;
     }
 
-    private static bool AddBroadcastReceiver(XmlDocument manifest)
+    private static void AddBroadcastReceiver(XmlDocument manifest)
     {
         // We're looking for existance of broadcast receiver in the AndroidManifest.xml
         // Check out the example below how that usually looks like:
@@ -401,7 +379,7 @@ public class AdjustEditor : AssetPostprocessor
         {
             UnityEngine.Debug.LogError("[Adjust]: Your app's AndroidManifest.xml file does not contain \"<application>\" node.");
             UnityEngine.Debug.LogError("[Adjust]: Unable to add the Adjust broadcast receiver to AndroidManifest.xml.");
-            return false;
+            return;
         }
 
         // Okay, there's an application node in the AndroidManifest.xml file.
@@ -433,8 +411,6 @@ public class AdjustEditor : AssetPostprocessor
             {
                 UnityEngine.Debug.Log("[Adjust]: It seems like you are already using Adjust broadcast receiver. Yay.");
             }
-
-            return false;
         }
         else
         {
@@ -453,8 +429,6 @@ public class AdjustEditor : AssetPostprocessor
             applicationNode.AppendChild(receiverElement);
 
             UnityEngine.Debug.Log("[Adjust]: Adjust broadcast receiver successfully added to your app's AndroidManifest.xml file.");
-
-            return true;
         }
     }
 
