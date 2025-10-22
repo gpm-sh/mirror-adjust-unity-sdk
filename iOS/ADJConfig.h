@@ -95,8 +95,6 @@
  */
 @property (nonatomic, copy, nullable) NSString *defaultTracker;
 
-@property (nonatomic, copy, nullable) NSString *externalDeviceId;
-
 /**
  * @brief Adjust app token.
  */
