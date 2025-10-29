@@ -8,7 +8,7 @@ namespace com.adjust.sdk
 #if UNITY_IOS
     public class AdjustiOS
     {
-        private const string sdkPrefix = "unity4.18.0";
+        private const string sdkPrefix = "unity4.17.2";
 
         [DllImport("__Internal")]
         private static extern void _AdjustLaunchApp(
@@ -99,9 +99,6 @@ namespace com.adjust.sdk
 
         [DllImport("__Internal")]
         private static extern void _AdjustResetSessionCallbackParameters();
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustTrackAdRevenue(string source, string payload);
 
         [DllImport("__Internal")]
         private static extern void _AdjustSetTestOptions(
@@ -248,11 +245,6 @@ namespace com.adjust.sdk
         public static void ResetSessionCallbackParameters()
         {
             _AdjustResetSessionCallbackParameters();
-        }
-
-        public static void TrackAdRevenue(string source, string payload)
-        {
-            _AdjustTrackAdRevenue(source, payload);
         }
 
         public static void SetDeviceToken(string deviceToken)
