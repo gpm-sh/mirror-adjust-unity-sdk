@@ -20,7 +20,7 @@ namespace com.adjust.sdk.test
         public void StartTestSession()
         {
             TestApp.Log("TestLibrary -> StartTestSession()");
-            _testLibraryInterface.StartTestSession(Adjust.getSdkVersion());
+            _testLibraryInterface.StartTestSession(TestApp.CLIENT_SDK);
         }
 
         public void AddInfoToSend(string key, string paramValue)

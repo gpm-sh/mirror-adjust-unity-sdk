@@ -12,14 +12,14 @@ namespace com.adjust.sdk.test
             CommandExecutor commandExecutor = new CommandExecutor(this, baseUrl, gdprUrl);
             onCommandReceivedListener = new CommandListenerAndroid(commandExecutor);
             ajoTestLibrary = new AndroidJavaObject(
-                "com.adjust.test.TestLibrary",
+                "com.adjust.testlibrary.TestLibrary",
                 baseUrl,
                 onCommandReceivedListener);
         }
 
         public void StartTestSession()
         {
-            ajoTestLibrary.Call("startTestSession", Adjust.getSdkVersion());
+            ajoTestLibrary.Call("startTestSession", TestApp.CLIENT_SDK);
         }
 
         public void AddInfoToSend(string key, string paramValue)

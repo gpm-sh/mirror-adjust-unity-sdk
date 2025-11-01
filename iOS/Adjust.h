@@ -2,7 +2,7 @@
 //  Adjust.h
 //  Adjust
 //
-//  V4.17.1
+//  V4.15.0
 //  Created by Christian Wellenbrock (wellle) on 23rd July 2013.
 //  Copyright © 2012-2017 Adjust GmbH. All rights reserved.
 //
@@ -153,13 +153,6 @@ extern NSString * __nonnull const ADJEnvironmentProduction;
 + (nullable ADJAttribution *)attribution;
 
 /**
- * @brief Get current Adjust SDK version string.
- *
- * @return Adjust SDK version string (iosX.Y.Z).
- */
-+ (nullable NSString *)sdkVersion;
-
-/**
  * @brief Convert a universal link style URL to a deeplink style URL with the corresponding scheme.
  *
  * @param url URL object which contains info about adjust deep link.
@@ -277,8 +270,6 @@ extern NSString * __nonnull const ADJEnvironmentProduction;
 - (nullable NSString *)adid;
 
 - (nullable NSString *)idfa;
-
-- (nullable NSString *)sdkVersion;
 
 - (nullable ADJAttribution *)attribution;
 
