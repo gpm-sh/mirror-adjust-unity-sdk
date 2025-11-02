@@ -10,27 +10,31 @@ namespace com.adjust.sdk.test
         public static readonly string TAG = "[TestApp]";
 
 #if (UNITY_WSA || UNITY_WP8)
-        public const string CLIENT_SDK = "unity4.15.0@wuap4.15.0";
+        public const string CLIENT_SDK = "unity4.14.1@wuap4.14.0";
         private const string PORT = ":8080";
         private const string PROTOCOL = "http://";
         private const string BASE_URL = PROTOCOL + "localhost" + PORT;        // Windows simulator
 #elif UNITY_ANDROID
-        public const string CLIENT_SDK = "unity4.15.0@android4.15.1";
+        public const string CLIENT_SDK = "unity4.14.1@android4.14.0";
         private const string PORT = ":8443";
         private const string PROTOCOL = "https://";
         private const string BASE_URL = PROTOCOL + "10.0.2.2" + PORT;          // Android simulator
 #elif UNITY_IOS
-        public const string CLIENT_SDK = "unity4.15.0@ios4.15.0";
+        public const string CLIENT_SDK = "unity4.14.1@ios4.14.1";
         private const string PORT = ":8080";
         private const string PROTOCOL = "http://";
         private const string BASE_URL = PROTOCOL + "127.0.0.1" + PORT;           // iOS simulator
         // private const string BASE_URL = PROTOCOL + "192.168.8.141" + PORT;    // Over WiFi
 
-        private TestLibraryiOS _testLibraryiOS;
+        private TestFactoryiOS _testFactoryiOS;
 #else
         public const string CLIENT_SDK = null;
 #endif
-        
+        // private const string BASE_URL = PROTOCOL + "10.0.2.2" + PORT;           // Android simulator
+        // private const string BASE_URL = PROTOCOL + "localhost" + PORT;          // Windows simulator
+        // private const string BASE_URL = PROTOCOL + "192.168.8.141" + PORT;      // Over WiFi
+        // private const string BASE_URL = PROTOCOL + "127.0.0.1" + PORT;          // iOS simulator
+
         void OnGUI()
         {
             if (GUI.Button(new Rect(0, Screen.height * 0 / 2, Screen.width, Screen.height / 2), "Start test"))
@@ -39,32 +43,31 @@ namespace com.adjust.sdk.test
             }
         }
 
-        private void StartTestSession() 
-        {
-            ITestLibrary testLibrary = GetPlatformSpecificTestLibrary ();
+        private void StartTestSession() {
+            ITestFactory testFactory = GetPlatformSpecificTestLibrary ();
 
 #if UNITY_IOS
-            _testLibraryiOS = testLibrary as TestLibraryiOS;
+            _testFactoryiOS = testFactory as TestFactoryiOS;
 #endif
+
             // Set specific tests to run.
-            //testLibrary.AddTest("current/eventBuffering/Test_EventBuffering_sensitive_packets");
-            //testLibrary.AddTest("current/gdpr/Test_GdprForgetMe_after_install");
-            //testLibrary.AddTestDirectory ("current/deeplink-deferred");
+            // testFactory.AddTest("current/eventBuffering/Test_EventBuffering_sensitive_packets");
+            // testFactory.AddTest("current/gdpr/Test_GdprForgetMe_after_install");
 
             Log("Starting test session...");
-            testLibrary.StartTestSession();
+            testFactory.StartTestSession();
         }
 
-        private ITestLibrary GetPlatformSpecificTestLibrary()
+        private ITestFactory GetPlatformSpecificTestLibrary()
         {
             // gdpr url on sdk_test_server is the same as base url
             string gdprUrl = BASE_URL;
 #if UNITY_IOS
-            return new TestLibraryiOS(BASE_URL, gdprUrl);
+            return new TestFactoryiOS(BASE_URL, gdprUrl);
 #elif UNITY_ANDROID
-            return new TestLibraryAndroid(BASE_URL, gdprUrl);
+            return new TestFactoryAndroid(BASE_URL, gdprUrl);
 #elif (UNITY_WSA || UNITY_WP8)
-            return new TestLibraryWindows(BASE_URL, gdprUrl);
+            return new TestFactoryWindows(BASE_URL, gdprUrl);
 #else
             Debug.Log("Cannot run integration tests (Error in TestApp.GetPlatformSpecificTestLibrary(...)). None of the supported platforms selected.");
             return null;
@@ -74,7 +77,7 @@ namespace com.adjust.sdk.test
 #if UNITY_IOS
         public void ExecuteCommand(string commandJson)
         {
-            _testLibraryiOS.ExecuteCommand(commandJson);
+            _testFactoryiOS.ExecuteCommand(commandJson);
         }
 #endif
         public static void Log(string message, bool useUnityDebug = false)

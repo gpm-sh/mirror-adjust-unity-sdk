@@ -20,13 +20,13 @@ namespace com.adjust.sdk.test
         private string _baseUrl;
         private string _gdprUrl;
         private Command _command;
-        private ITestLibrary _testLibrary;
+        private ITestFactory _testFactory;
 
-        public CommandExecutor(ITestLibrary testLibrary, string baseUrl, string gdprUrl)
+        public CommandExecutor(ITestFactory testFactory, string baseUrl, string gdprUrl)
         {
             _baseUrl = baseUrl;
             _gdprUrl = gdprUrl;
-            _testLibrary = testLibrary;
+            _testFactory = testFactory;
         }
             
         public void ExecuteCommand(string className, string methodName, Dictionary<string, List<string>> parameters)
@@ -80,9 +80,9 @@ namespace com.adjust.sdk.test
         {
             TestApp.Log("Configuring and setting Testing Options...");
 
-            Dictionary<string, string> testOptions = new Dictionary<string, string>();
-            testOptions[AdjustUtils.KeyTestOptionsBaseUrl] = _baseUrl;
-            testOptions[AdjustUtils.KeyTestOptionsGdprUrl] = _gdprUrl;
+            AdjustTestOptions testOptions = new AdjustTestOptions();
+            testOptions.BaseUrl = _baseUrl;
+            testOptions.GdprUrl = _gdprUrl;
 
             if (_command.ContainsParameter("basePath"))
             {
@@ -91,28 +91,28 @@ namespace com.adjust.sdk.test
             }
             if (_command.ContainsParameter("timerInterval"))
             {
-                testOptions[AdjustUtils.KeyTestOptionsTimerIntervalInMilliseconds] = _command.GetFirstParameterValue("timerInterval");
+                long timerInterval = long.Parse(_command.GetFirstParameterValue("timerInterval"));
+                testOptions.TimerIntervalInMilliseconds = timerInterval;
             }
             if (_command.ContainsParameter("timerStart"))
             {
-                testOptions[AdjustUtils.KeyTestOptionsTimerStartInMilliseconds] = _command.GetFirstParameterValue("timerStart");
+                long timerStart = long.Parse(_command.GetFirstParameterValue("timerStart"));
+                testOptions.TimerStartInMilliseconds = timerStart;
             }
             if (_command.ContainsParameter("sessionInterval"))
             {
-                testOptions[AdjustUtils.KeyTestOptionsSessionIntervalInMilliseconds] = _command.GetFirstParameterValue("sessionInterval");
+                long sessionInterval = long.Parse(_command.GetFirstParameterValue("sessionInterval"));
+                testOptions.SessionIntervalInMilliseconds = sessionInterval;
             }
             if (_command.ContainsParameter("subsessionInterval"))
             {
-                testOptions[AdjustUtils.KeyTestOptionsSubsessionIntervalInMilliseconds] = _command.GetFirstParameterValue("subsessionInterval");
+                long subsessionInterval = long.Parse(_command.GetFirstParameterValue("subsessionInterval"));
+                testOptions.SubsessionIntervalInMilliseconds = subsessionInterval;
             }
             if (_command.ContainsParameter("noBackoffWait"))
             {
-                testOptions[AdjustUtils.KeyTestOptionsNoBackoffWait] = _command.GetFirstParameterValue("noBackoffWait");
-            }
-            testOptions [AdjustUtils.KeyTestOptionsiAdFrameworkEnabled] = "false";  // false - iAd will not be used in test app by default
-            if (_command.ContainsParameter("iAdFrameworkEnabled"))
-            {
-                testOptions[AdjustUtils.KeyTestOptionsiAdFrameworkEnabled] = _command.GetFirstParameterValue("iAdFrameworkEnabled");
+                bool noBackoffWait = bool.Parse(_command.GetFirstParameterValue("noBackoffWait"));
+                testOptions.NoBackoffWait = noBackoffWait;
             }
             if (_command.ContainsParameter("teardown"))
             {
@@ -121,39 +121,39 @@ namespace com.adjust.sdk.test
                 {
                     if (teardownOption == "resetSdk")
                     {
-                        testOptions[AdjustUtils.KeyTestOptionsTeardown] = "true";
-                        testOptions[AdjustUtils.KeyTestOptionsBasePath] = BasePath;
-                        testOptions[AdjustUtils.KeyTestOptionsGdprPath] = GdprPath;
-                        testOptions[AdjustUtils.KeyTestOptionsUseTestConnectionOptions] = "true";
+                        testOptions.Teardown = true;
+                        testOptions.BasePath = BasePath;
+                        testOptions.GdprPath = GdprPath;
+                        testOptions.UseTestConnectionOptions = true;
                     }
                     if (teardownOption == "deleteState")
                     {
-                        testOptions[AdjustUtils.KeyTestOptionsDeleteState] = "true";
+                        testOptions.DeleteState = true;
                     }
                     if (teardownOption == "resetTest")
                     {
                         _savedEvents = new Dictionary<int, AdjustEvent>();
                         _savedConfigs = new Dictionary<int, AdjustConfig>();
-                        testOptions[AdjustUtils.KeyTestOptionsTimerIntervalInMilliseconds] = "-1";
-                        testOptions[AdjustUtils.KeyTestOptionsSessionIntervalInMilliseconds] = "-1";
-                        testOptions[AdjustUtils.KeyTestOptionsTimerStartInMilliseconds] = "-1";
-                        testOptions[AdjustUtils.KeyTestOptionsSubsessionIntervalInMilliseconds] = "-1";
+                        testOptions.TimerIntervalInMilliseconds = -1;
+                        testOptions.TimerStartInMilliseconds = -1;
+                        testOptions.SessionIntervalInMilliseconds = -1;
+                        testOptions.SubsessionIntervalInMilliseconds = -1;
                     }
                     if (teardownOption == "sdk")
                     {
-                        testOptions[AdjustUtils.KeyTestOptionsTeardown] = "true";
-                        testOptions[AdjustUtils.KeyTestOptionsBasePath] = null;
-                        testOptions[AdjustUtils.KeyTestOptionsGdprPath] = null;
-                        testOptions[AdjustUtils.KeyTestOptionsUseTestConnectionOptions] = "false";
+                        testOptions.Teardown = true;
+                        testOptions.BasePath = null;
+                        testOptions.GdprPath = null;
+                        testOptions.UseTestConnectionOptions = false;
                     }
                     if (teardownOption == "test")
                     {
                         _savedEvents = null;
                         _savedConfigs = null;
-                        testOptions[AdjustUtils.KeyTestOptionsTimerIntervalInMilliseconds] = "-1";
-                        testOptions[AdjustUtils.KeyTestOptionsTimerStartInMilliseconds] = "-1";
-                        testOptions[AdjustUtils.KeyTestOptionsSessionIntervalInMilliseconds] = "-1";
-                        testOptions[AdjustUtils.KeyTestOptionsSubsessionIntervalInMilliseconds] = "-1";
+                        testOptions.TimerIntervalInMilliseconds = -1;
+                        testOptions.TimerStartInMilliseconds = -1;
+                        testOptions.SessionIntervalInMilliseconds = -1;
+                        testOptions.SubsessionIntervalInMilliseconds = -1;
                     }
                 }
             }
@@ -237,6 +237,7 @@ namespace com.adjust.sdk.test
 #if (UNITY_WSA || UNITY_WP8)
                 adjustConfig.logDelegate = msg => Debug.Log(msg);
 #endif
+
                 _savedConfigs.Add(configNumber, adjustConfig);
             }
 
@@ -316,14 +317,22 @@ namespace com.adjust.sdk.test
 
             if (_command.ContainsParameter("deferredDeeplinkCallback"))
             {
-                bool launchDeferredDeeplink = _command.GetFirstParameterValue("deferredDeeplinkCallback") == "true";
-                adjustConfig.setLaunchDeferredDeeplink(launchDeferredDeeplink);
-                string localBasePath = BasePath;
                 adjustConfig.setDeferredDeeplinkDelegate(uri =>
                 {
-                    TestApp.Log("deferred_deep_link = " + uri);
-                    _testLibrary.AddInfoToSend("deeplink", uri);
-                    _testLibrary.SendInfoToServer(localBasePath);
+                    if (uri == null)
+                    {
+                        TestApp.Log("DeeplinkResponse, uri = null");
+                        adjustConfig.setLaunchDeferredDeeplink(false);
+                    }
+
+                    TestApp.Log("DeeplinkResponse, uri = " + uri.ToString());
+
+                    if (!uri.StartsWith("adjusttest"))
+                    {
+                        adjustConfig.setLaunchDeferredDeeplink(false);
+                    }
+
+                    adjustConfig.setLaunchDeferredDeeplink(true);
                 });
             }
 
@@ -334,15 +343,15 @@ namespace com.adjust.sdk.test
                 {
                     TestApp.Log("AttributionChanged, attribution = " + attribution);
 
-                    _testLibrary.AddInfoToSend("trackerToken", attribution.trackerToken);
-                    _testLibrary.AddInfoToSend("trackerName", attribution.trackerName);
-                    _testLibrary.AddInfoToSend("network", attribution.network);
-                    _testLibrary.AddInfoToSend("campaign", attribution.campaign);
-                    _testLibrary.AddInfoToSend("adgroup", attribution.adgroup);
-                    _testLibrary.AddInfoToSend("creative", attribution.creative);
-                    _testLibrary.AddInfoToSend("clickLabel", attribution.clickLabel);
-                    _testLibrary.AddInfoToSend("adid", attribution.adid);
-                    _testLibrary.SendInfoToServer(localBasePath);
+                    _testFactory.AddInfoToSend("trackerToken", attribution.trackerToken);
+                    _testFactory.AddInfoToSend("trackerName", attribution.trackerName);
+                    _testFactory.AddInfoToSend("network", attribution.network);
+                    _testFactory.AddInfoToSend("campaign", attribution.campaign);
+                    _testFactory.AddInfoToSend("adgroup", attribution.adgroup);
+                    _testFactory.AddInfoToSend("creative", attribution.creative);
+                    _testFactory.AddInfoToSend("clickLabel", attribution.clickLabel);
+                    _testFactory.AddInfoToSend("adid", attribution.adid);
+                    _testFactory.SendInfoToServer(localBasePath);
                 });
             }
 
@@ -353,14 +362,14 @@ namespace com.adjust.sdk.test
                 {
                     TestApp.Log("SesssionTrackingSucceeded, sessionSuccessResponseData = " + sessionSuccessResponseData);
 
-                    _testLibrary.AddInfoToSend("message", sessionSuccessResponseData.Message);
-                    _testLibrary.AddInfoToSend("timestamp", sessionSuccessResponseData.Timestamp);
-                    _testLibrary.AddInfoToSend("adid", sessionSuccessResponseData.Adid);
+                    _testFactory.AddInfoToSend("message", sessionSuccessResponseData.Message);
+                    _testFactory.AddInfoToSend("timestamp", sessionSuccessResponseData.Timestamp);
+                    _testFactory.AddInfoToSend("adid", sessionSuccessResponseData.Adid);
                     if (sessionSuccessResponseData.JsonResponse != null)
                     {
-                        _testLibrary.AddInfoToSend("jsonResponse", sessionSuccessResponseData.GetJsonResponse());
+                        _testFactory.AddInfoToSend("jsonResponse", sessionSuccessResponseData.GetJsonResponse());
                     }
-                    _testLibrary.SendInfoToServer(localBasePath);
+                    _testFactory.SendInfoToServer(localBasePath);
                 });
             }
 
@@ -371,15 +380,15 @@ namespace com.adjust.sdk.test
                 {
                     TestApp.Log("SesssionTrackingFailed, sessionFailureResponseData = " + sessionFailureResponseData);
 
-                    _testLibrary.AddInfoToSend("message", sessionFailureResponseData.Message);
-                    _testLibrary.AddInfoToSend("timestamp", sessionFailureResponseData.Timestamp);
-                    _testLibrary.AddInfoToSend("adid", sessionFailureResponseData.Adid);
-                    _testLibrary.AddInfoToSend("willRetry", sessionFailureResponseData.WillRetry.ToString().ToLower());
+                    _testFactory.AddInfoToSend("message", sessionFailureResponseData.Message);
+                    _testFactory.AddInfoToSend("timestamp", sessionFailureResponseData.Timestamp);
+                    _testFactory.AddInfoToSend("adid", sessionFailureResponseData.Adid);
+                    _testFactory.AddInfoToSend("willRetry", sessionFailureResponseData.WillRetry.ToString().ToLower());
                     if (sessionFailureResponseData.JsonResponse != null)
                     {
-                        _testLibrary.AddInfoToSend("jsonResponse", sessionFailureResponseData.GetJsonResponse());
+                        _testFactory.AddInfoToSend("jsonResponse", sessionFailureResponseData.GetJsonResponse());
                     }
-                    _testLibrary.SendInfoToServer(localBasePath);
+                    _testFactory.SendInfoToServer(localBasePath);
                 });
             }
 
@@ -390,16 +399,15 @@ namespace com.adjust.sdk.test
                 {
                     TestApp.Log("EventTrackingSucceeded, eventSuccessResponseData = " + eventSuccessResponseData);
 
-                    _testLibrary.AddInfoToSend("message", eventSuccessResponseData.Message);
-                    _testLibrary.AddInfoToSend("timestamp", eventSuccessResponseData.Timestamp);
-                    _testLibrary.AddInfoToSend("adid", eventSuccessResponseData.Adid);
-                    _testLibrary.AddInfoToSend("eventToken", eventSuccessResponseData.EventToken);
-                    _testLibrary.AddInfoToSend("callbackId", eventSuccessResponseData.CallbackId);
+                    _testFactory.AddInfoToSend("message", eventSuccessResponseData.Message);
+                    _testFactory.AddInfoToSend("timestamp", eventSuccessResponseData.Timestamp);
+                    _testFactory.AddInfoToSend("adid", eventSuccessResponseData.Adid);
+                    _testFactory.AddInfoToSend("eventToken", eventSuccessResponseData.EventToken);
                     if (eventSuccessResponseData.JsonResponse != null)
                     {
-                        _testLibrary.AddInfoToSend("jsonResponse", eventSuccessResponseData.GetJsonResponse());
+                        _testFactory.AddInfoToSend("jsonResponse", eventSuccessResponseData.GetJsonResponse());
                     }
-                    _testLibrary.SendInfoToServer(localBasePath);
+                    _testFactory.SendInfoToServer(localBasePath);
                 });
             }
 
@@ -410,17 +418,16 @@ namespace com.adjust.sdk.test
                 {
                     TestApp.Log("EventTrackingFailed, eventFailureResponseData = " + eventFailureResponseData);
 
-                    _testLibrary.AddInfoToSend("message", eventFailureResponseData.Message);
-                    _testLibrary.AddInfoToSend("timestamp", eventFailureResponseData.Timestamp);
-                    _testLibrary.AddInfoToSend("adid", eventFailureResponseData.Adid);
-                    _testLibrary.AddInfoToSend("eventToken", eventFailureResponseData.EventToken);
-                    _testLibrary.AddInfoToSend("callbackId", eventFailureResponseData.CallbackId);
-                    _testLibrary.AddInfoToSend("willRetry", eventFailureResponseData.WillRetry.ToString().ToLower());
+                    _testFactory.AddInfoToSend("message", eventFailureResponseData.Message);
+                    _testFactory.AddInfoToSend("timestamp", eventFailureResponseData.Timestamp);
+                    _testFactory.AddInfoToSend("adid", eventFailureResponseData.Adid);
+                    _testFactory.AddInfoToSend("eventToken", eventFailureResponseData.EventToken);
+                    _testFactory.AddInfoToSend("willRetry", eventFailureResponseData.WillRetry.ToString().ToLower());
                     if (eventFailureResponseData.JsonResponse != null)
                     {
-                        _testLibrary.AddInfoToSend("jsonResponse", eventFailureResponseData.GetJsonResponse());
+                        _testFactory.AddInfoToSend("jsonResponse", eventFailureResponseData.GetJsonResponse());
                     }
-                    _testLibrary.SendInfoToServer(localBasePath);
+                    _testFactory.SendInfoToServer(localBasePath);
                 });
             }
         }
@@ -497,12 +504,6 @@ namespace com.adjust.sdk.test
                 var orderId = _command.GetFirstParameterValue("orderId");
                 adjustEvent.setTransactionId(orderId);
             }
-
-            if (_command.ContainsParameter("callbackId"))
-            {
-                var callbackId = _command.GetFirstParameterValue("callbackId");
-                adjustEvent.setCallbackId(callbackId);
-            }
         }
 
         private void TrackEvent()
@@ -524,7 +525,7 @@ namespace com.adjust.sdk.test
         private void Resume()
         {
 #if UNITY_IOS
-            AdjustiOS.TrackSubsessionStart("test");
+            AdjustiOS.TrackSubsessionStart();
 #elif UNITY_ANDROID
             AdjustAndroid.OnResume();
 #elif (UNITY_WSA || UNITY_WP8)
@@ -537,7 +538,7 @@ namespace com.adjust.sdk.test
         private void Pause()
         {
 #if UNITY_IOS
-            AdjustiOS.TrackSubsessionEnd("test");
+            AdjustiOS.TrackSubsessionEnd();
 #elif UNITY_ANDROID
             AdjustAndroid.OnPause();
 #elif (UNITY_WSA || UNITY_WP8)

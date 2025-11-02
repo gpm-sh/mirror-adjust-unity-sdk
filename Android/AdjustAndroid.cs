@@ -1,17 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+
 using UnityEngine;
+using com.adjust.sdk.test;
 
 namespace com.adjust.sdk
 {
 #if UNITY_ANDROID
     public class AdjustAndroid
     {
-        private const string sdkPrefix = "unity4.15.0";
+        private const string sdkPrefix = "unity4.14.1";
         private static bool launchDeferredDeeplink = true;
+
         private static AndroidJavaClass ajcAdjust = new AndroidJavaClass("com.adjust.sdk.Adjust");
-        private static AndroidJavaObject ajoCurrentActivity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+        // TODO: Check whether currentActivity should be disposed after usage.
+        private static AndroidJavaObject ajoCurrentActivity = new AndroidJavaClass
+            ("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+
         private static DeferredDeeplinkListener onDeferredDeeplinkListener;
         private static AttributionChangeListener onAttributionChangedListener;
         private static EventTrackingFailedListener onEventTrackingFailedListener;
@@ -25,7 +31,7 @@ namespace com.adjust.sdk
             AndroidJavaObject ajoEnvironment = adjustConfig.environment == AdjustEnvironment.Sandbox ? 
                 new AndroidJavaClass("com.adjust.sdk.AdjustConfig").GetStatic<AndroidJavaObject>("ENVIRONMENT_SANDBOX") :
                     new AndroidJavaClass("com.adjust.sdk.AdjustConfig").GetStatic<AndroidJavaObject>("ENVIRONMENT_PRODUCTION");
-            
+
             // Create adjust config object.
             AndroidJavaObject ajoAdjustConfig;
 
@@ -46,6 +52,7 @@ namespace com.adjust.sdk
             if (adjustConfig.logLevel != null)
             {
                 AndroidJavaObject ajoLogLevel;
+
                 if (adjustConfig.logLevel.Value.ToUppercaseString().Equals("SUPPRESS"))
                 {
                     ajoLogLevel = new AndroidJavaClass("com.adjust.sdk.LogLevel").GetStatic<AndroidJavaObject>("SUPRESS");
@@ -118,11 +125,10 @@ namespace com.adjust.sdk
                 ajoAdjustConfig.Call("setDeviceKnown", adjustConfig.isDeviceKnown.Value);
             }
 
-            // Check if user has enabled reading of IMEI and MEID.  
-            // Obsolete method. 
-            if (adjustConfig.readImei.HasValue) 
-            {   
-                // ajoAdjustConfig.Call("setReadMobileEquipmentIdentity", adjustConfig.readImei.Value); 
+            // Check if user has enabled reading of IMEI and MEID.
+            if (adjustConfig.readImei.HasValue)
+            {
+                ajoAdjustConfig.Call("setReadMobileEquipmentIdentity", adjustConfig.readImei.Value);
             }
 
             // Check attribution changed delagate setting.
@@ -210,12 +216,6 @@ namespace com.adjust.sdk
                 ajoAdjustEvent.Call("setOrderId", adjustEvent.transactionId);
             }
 
-            // Check if user has added callback ID to the event.
-            if (adjustEvent.callbackId != null)
-            {
-                ajoAdjustEvent.Call("setCallbackId", adjustEvent.callbackId);
-            }
-
             // Track the event.
             ajcAdjust.CallStatic("trackEvent", ajoAdjustEvent);
         }
@@ -266,22 +266,14 @@ namespace com.adjust.sdk
                 }
 
                 AdjustAttribution adjustAttribution = new AdjustAttribution();
-                adjustAttribution.trackerName = ajoAttribution.Get<string>(AdjustUtils.KeyTrackerName) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyTrackerName);
-                adjustAttribution.trackerToken = ajoAttribution.Get<string>(AdjustUtils.KeyTrackerToken) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyTrackerToken);
-                adjustAttribution.network = ajoAttribution.Get<string>(AdjustUtils.KeyNetwork) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyNetwork);
-                adjustAttribution.campaign = ajoAttribution.Get<string>(AdjustUtils.KeyCampaign) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyCampaign);
-                adjustAttribution.adgroup = ajoAttribution.Get<string>(AdjustUtils.KeyAdgroup) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyAdgroup);
-                adjustAttribution.creative = ajoAttribution.Get<string>(AdjustUtils.KeyCreative) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyCreative);
-                adjustAttribution.clickLabel = ajoAttribution.Get<string>(AdjustUtils.KeyClickLabel) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyClickLabel);
-                adjustAttribution.adid = ajoAttribution.Get<string>(AdjustUtils.KeyAdid) == "" ?
-                    null : ajoAttribution.Get<string>(AdjustUtils.KeyAdid);
+                adjustAttribution.trackerName = ajoAttribution.Get<string>(AdjustUtils.KeyTrackerName);
+                adjustAttribution.trackerToken = ajoAttribution.Get<string>(AdjustUtils.KeyTrackerToken);
+                adjustAttribution.network = ajoAttribution.Get<string>(AdjustUtils.KeyNetwork);
+                adjustAttribution.campaign = ajoAttribution.Get<string>(AdjustUtils.KeyCampaign);
+                adjustAttribution.adgroup = ajoAttribution.Get<string>(AdjustUtils.KeyAdgroup);
+                adjustAttribution.creative = ajoAttribution.Get<string>(AdjustUtils.KeyCreative);
+                adjustAttribution.clickLabel = ajoAttribution.Get<string>(AdjustUtils.KeyClickLabel);
+                adjustAttribution.adid = ajoAttribution.Get<string>(AdjustUtils.KeyAdid);
                 return adjustAttribution;
             }
             catch (Exception) {}
@@ -378,9 +370,9 @@ namespace com.adjust.sdk
         }
 
         // Used for testing only.
-        public static void SetTestOptions(Dictionary<string, string> testOptions)
+        public static void SetTestOptions(AdjustTestOptions testOptions)
         {
-            AndroidJavaObject ajoTestOptions = AdjustUtils.TestOptionsMap2AndroidJavaObject(testOptions, ajoCurrentActivity);
+            AndroidJavaObject ajoTestOptions = testOptions.ToAndroidJavaObject(ajoCurrentActivity);
             ajcAdjust.CallStatic("setTestOptions", ajoTestOptions);
         }
 
@@ -403,22 +395,14 @@ namespace com.adjust.sdk
                 }
 
                 AdjustAttribution adjustAttribution = new AdjustAttribution();
-                adjustAttribution.trackerName = attribution.Get<string>(AdjustUtils.KeyTrackerName) == "" ?
-                    null : attribution.Get<string>(AdjustUtils.KeyTrackerName);
-                adjustAttribution.trackerToken = attribution.Get<string>(AdjustUtils.KeyTrackerToken) == "" ?
-                    null : attribution.Get<string>(AdjustUtils.KeyTrackerToken);
-                adjustAttribution.network = attribution.Get<string>(AdjustUtils.KeyNetwork) == "" ?
-                    null : attribution.Get<string>(AdjustUtils.KeyNetwork);
-                adjustAttribution.campaign = attribution.Get<string>(AdjustUtils.KeyCampaign) == "" ?
-                    null : attribution.Get<string>(AdjustUtils.KeyCampaign);
-                adjustAttribution.adgroup = attribution.Get<string>(AdjustUtils.KeyAdgroup) == "" ?
-                    null : attribution.Get<string>(AdjustUtils.KeyAdgroup);
-                adjustAttribution.creative = attribution.Get<string>(AdjustUtils.KeyCreative) == "" ?
-                    null : attribution.Get<string>(AdjustUtils.KeyCreative);
-                adjustAttribution.clickLabel = attribution.Get<string>(AdjustUtils.KeyClickLabel) == "" ?
-                    null : attribution.Get<string>(AdjustUtils.KeyClickLabel);
-                adjustAttribution.adid = attribution.Get<string>(AdjustUtils.KeyAdid) == "" ?
-                    null : attribution.Get<string>(AdjustUtils.KeyAdid);
+                adjustAttribution.trackerName = attribution.Get<string>(AdjustUtils.KeyTrackerName);
+                adjustAttribution.trackerToken = attribution.Get<string>(AdjustUtils.KeyTrackerToken);
+                adjustAttribution.network = attribution.Get<string>(AdjustUtils.KeyNetwork);
+                adjustAttribution.campaign = attribution.Get<string>(AdjustUtils.KeyCampaign);
+                adjustAttribution.adgroup = attribution.Get<string>(AdjustUtils.KeyAdgroup);
+                adjustAttribution.creative = attribution.Get<string>(AdjustUtils.KeyCreative);
+                adjustAttribution.clickLabel = attribution.Get<string>(AdjustUtils.KeyClickLabel);
+                adjustAttribution.adid = attribution.Get<string>(AdjustUtils.KeyAdid);
                 callback(adjustAttribution);
             }
         }
@@ -468,17 +452,10 @@ namespace com.adjust.sdk
                 }
 
                 AdjustEventSuccess adjustEventSuccess = new AdjustEventSuccess();
-                adjustEventSuccess.Adid = eventSuccessData.Get<string>(AdjustUtils.KeyAdid) == "" ?
-                    null : eventSuccessData.Get<string>(AdjustUtils.KeyAdid);
-                adjustEventSuccess.Message = eventSuccessData.Get<string>(AdjustUtils.KeyMessage) == "" ?
-                    null : eventSuccessData.Get<string>(AdjustUtils.KeyMessage);
-                adjustEventSuccess.Timestamp = eventSuccessData.Get<string>(AdjustUtils.KeyTimestamp) == "" ?
-                    null : eventSuccessData.Get<string>(AdjustUtils.KeyTimestamp);
-                adjustEventSuccess.EventToken = eventSuccessData.Get<string>(AdjustUtils.KeyEventToken) == "" ?
-                    null : eventSuccessData.Get<string>(AdjustUtils.KeyEventToken);
-                adjustEventSuccess.CallbackId = eventSuccessData.Get<string>(AdjustUtils.KeyCallbackId) == "" ?
-                    null : eventSuccessData.Get<string>(AdjustUtils.KeyCallbackId);
-
+                adjustEventSuccess.Adid = eventSuccessData.Get<string>(AdjustUtils.KeyAdid);
+                adjustEventSuccess.Message = eventSuccessData.Get<string>(AdjustUtils.KeyMessage);
+                adjustEventSuccess.Timestamp = eventSuccessData.Get<string>(AdjustUtils.KeyTimestamp);
+                adjustEventSuccess.EventToken = eventSuccessData.Get<string>(AdjustUtils.KeyEventToken);
                 try
                 {
                     AndroidJavaObject ajoJsonResponse = eventSuccessData.Get<AndroidJavaObject>(AdjustUtils.KeyJsonResponse);
@@ -488,8 +465,8 @@ namespace com.adjust.sdk
                 catch (Exception)
                 {
                     // JSON response reading failed.
-                    // Native Android SDK should send empty JSON object if none available as of v4.12.5.
-                    // Native Android SDK added special logic to send Unity friendly values as of v4.15.0.
+                    // Should not be happening as of v4.12.5.
+                    // Native Android SDK should send empty JSON object if none available.
                 }
 
                 callback(adjustEventSuccess);
@@ -518,18 +495,11 @@ namespace com.adjust.sdk
                 }
 
                 AdjustEventFailure adjustEventFailure = new AdjustEventFailure();
-                adjustEventFailure.Adid = eventFailureData.Get<string>(AdjustUtils.KeyAdid) == "" ?
-                    null : eventFailureData.Get<string>(AdjustUtils.KeyAdid);
-                adjustEventFailure.Message = eventFailureData.Get<string>(AdjustUtils.KeyMessage) == "" ?
-                    null : eventFailureData.Get<string>(AdjustUtils.KeyMessage);
+                adjustEventFailure.Adid = eventFailureData.Get<string>(AdjustUtils.KeyAdid);
+                adjustEventFailure.Message = eventFailureData.Get<string>(AdjustUtils.KeyMessage);
                 adjustEventFailure.WillRetry = eventFailureData.Get<bool>(AdjustUtils.KeyWillRetry);
-                adjustEventFailure.Timestamp = eventFailureData.Get<string>(AdjustUtils.KeyTimestamp) == "" ?
-                    null : eventFailureData.Get<string>(AdjustUtils.KeyTimestamp);
-                adjustEventFailure.EventToken = eventFailureData.Get<string>(AdjustUtils.KeyEventToken) == "" ?
-                    null : eventFailureData.Get<string>(AdjustUtils.KeyEventToken);
-                adjustEventFailure.CallbackId = eventFailureData.Get<string>(AdjustUtils.KeyCallbackId) == "" ?
-                    null : eventFailureData.Get<string>(AdjustUtils.KeyCallbackId);
-
+                adjustEventFailure.Timestamp = eventFailureData.Get<string>(AdjustUtils.KeyTimestamp);
+                adjustEventFailure.EventToken = eventFailureData.Get<string>(AdjustUtils.KeyEventToken);
                 try
                 {
                     AndroidJavaObject ajoJsonResponse = eventFailureData.Get<AndroidJavaObject>(AdjustUtils.KeyJsonResponse);
@@ -539,8 +509,8 @@ namespace com.adjust.sdk
                 catch (Exception)
                 {
                     // JSON response reading failed.
-                    // Native Android SDK should send empty JSON object if none available as of v4.12.5.
-                    // Native Android SDK added special logic to send Unity friendly values as of v4.15.0.
+                    // Should not be happening as of v4.12.5.
+                    // Native Android SDK should send empty JSON object if none available.
                 }
                 
                 callback(adjustEventFailure);
@@ -569,13 +539,9 @@ namespace com.adjust.sdk
                 }
 
                 AdjustSessionSuccess adjustSessionSuccess = new AdjustSessionSuccess();
-                adjustSessionSuccess.Adid = sessionSuccessData.Get<string>(AdjustUtils.KeyAdid) == "" ?
-                    null : sessionSuccessData.Get<string>(AdjustUtils.KeyAdid);
-                adjustSessionSuccess.Message = sessionSuccessData.Get<string>(AdjustUtils.KeyMessage) == "" ?
-                    null : sessionSuccessData.Get<string>(AdjustUtils.KeyMessage);
-                adjustSessionSuccess.Timestamp = sessionSuccessData.Get<string>(AdjustUtils.KeyTimestamp) == "" ?
-                    null : sessionSuccessData.Get<string>(AdjustUtils.KeyTimestamp);
-
+                adjustSessionSuccess.Adid = sessionSuccessData.Get<string>(AdjustUtils.KeyAdid);
+                adjustSessionSuccess.Message = sessionSuccessData.Get<string>(AdjustUtils.KeyMessage);
+                adjustSessionSuccess.Timestamp = sessionSuccessData.Get<string>(AdjustUtils.KeyTimestamp);
                 try
                 {
                     AndroidJavaObject ajoJsonResponse = sessionSuccessData.Get<AndroidJavaObject>(AdjustUtils.KeyJsonResponse);
@@ -585,8 +551,8 @@ namespace com.adjust.sdk
                 catch (Exception)
                 {
                     // JSON response reading failed.
-                    // Native Android SDK should send empty JSON object if none available as of v4.12.5.
-                    // Native Android SDK added special logic to send Unity friendly values as of v4.15.0.
+                    // Should not be happening as of v4.12.5.
+                    // Native Android SDK should send empty JSON object if none available.
                 }
 
                 callback(adjustSessionSuccess);
@@ -615,14 +581,10 @@ namespace com.adjust.sdk
                 }
 
                 AdjustSessionFailure adjustSessionFailure = new AdjustSessionFailure();
-                adjustSessionFailure.Adid = sessionFailureData.Get<string>(AdjustUtils.KeyAdid) == "" ?
-                    null : sessionFailureData.Get<string>(AdjustUtils.KeyAdid);
-                adjustSessionFailure.Message = sessionFailureData.Get<string>(AdjustUtils.KeyMessage) == "" ?
-                    null : sessionFailureData.Get<string>(AdjustUtils.KeyMessage);
+                adjustSessionFailure.Adid = sessionFailureData.Get<string>(AdjustUtils.KeyAdid);
+                adjustSessionFailure.Message = sessionFailureData.Get<string>(AdjustUtils.KeyMessage);
                 adjustSessionFailure.WillRetry = sessionFailureData.Get<bool>(AdjustUtils.KeyWillRetry);
-                adjustSessionFailure.Timestamp = sessionFailureData.Get<string>(AdjustUtils.KeyTimestamp) == "" ?
-                    null : sessionFailureData.Get<string>(AdjustUtils.KeyTimestamp);
-
+                adjustSessionFailure.Timestamp = sessionFailureData.Get<string>(AdjustUtils.KeyTimestamp);
                 try
                 {
                     AndroidJavaObject ajoJsonResponse = sessionFailureData.Get<AndroidJavaObject>(AdjustUtils.KeyJsonResponse);
@@ -632,8 +594,8 @@ namespace com.adjust.sdk
                 catch (Exception)
                 {
                     // JSON response reading failed.
-                    // Native Android SDK should send empty JSON object if none available as of v4.12.5.
-                    // Native Android SDK added special logic to send Unity friendly values as of v4.15.0.
+                    // Should not be happening as of v4.12.5.
+                    // Native Android SDK should send empty JSON object if none available.
                 }
 
                 callback(adjustSessionFailure);
@@ -678,10 +640,10 @@ namespace com.adjust.sdk
         private static bool IsAppSecretSet(AdjustConfig adjustConfig)
         {
             return adjustConfig.secretId.HasValue 
-                && adjustConfig.info1.HasValue
-                && adjustConfig.info2.HasValue
-                && adjustConfig.info3.HasValue
-                && adjustConfig.info4.HasValue;
+            && adjustConfig.info1.HasValue
+            && adjustConfig.info2.HasValue
+            && adjustConfig.info3.HasValue
+            && adjustConfig.info4.HasValue;
         }
     }
 #endif
