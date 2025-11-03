@@ -275,7 +275,7 @@ extern "C"
 
     void _AdjustSetDeviceToken(const char* deviceToken) {
         NSString *stringDeviceToken = [NSString stringWithUTF8String:deviceToken];
-        [Adjust setPushToken:stringDeviceToken];
+        [Adjust setDeviceToken:[stringDeviceToken dataUsingEncoding:NSUTF8StringEncoding]];
     }
 
     void _AdjustAppWillOpenUrl(const char* url) {
