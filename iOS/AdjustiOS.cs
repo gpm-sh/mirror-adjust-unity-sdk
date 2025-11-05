@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using UnityEngine;
-using com.adjust.sdk.test;
 
 namespace com.adjust.sdk
 {
 #if UNITY_IOS
     public class AdjustiOS
     {
-        private const string sdkPrefix = "unity4.13.0";
+        private const string sdkPrefix = "unity4.12.5";
 
         [DllImport("__Internal")]
         private static extern void _AdjustLaunchApp(
@@ -72,9 +71,6 @@ namespace com.adjust.sdk
         private static extern string _AdjustGetAdid();
 
         [DllImport("__Internal")]
-        private static extern void _AdjustGdprForgetMe();
-
-        [DllImport("__Internal")]
         private static extern string _AdjustGetAttribution();
 
         [DllImport("__Internal")]
@@ -97,25 +93,6 @@ namespace com.adjust.sdk
 
         [DllImport("__Internal")]
         private static extern void _AdjustResetSessionCallbackParameters();
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustSetTestOptions(
-            string baseUrl,
-            string basePath,
-            string gdprUrl,
-            string gdprPath,
-            long timerIntervalInMilliseconds,
-            long timerStartInMilliseconds,
-            long sessionIntervalInMilliseconds,
-            long subsessionIntervalInMilliseconds,
-            int teardown,
-            int deleteState);
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustTrackSubsessionStart();
-
-        [DllImport("__Internal")]
-        private static extern void _AdjustTrackSubsessionEnd();
 
         public AdjustiOS() {}
 
@@ -180,6 +157,7 @@ namespace com.adjust.sdk
         {
             int isReceiptSet = AdjustUtils.ConvertBool(adjustEvent.isReceiptSet);
             double revenue = AdjustUtils.ConvertDouble(adjustEvent.revenue);
+
             string eventToken = adjustEvent.eventToken;
             string currency = adjustEvent.currency;
             string receipt = adjustEvent.receipt;
@@ -188,7 +166,7 @@ namespace com.adjust.sdk
             string stringJsonPartnerParameters = AdjustUtils.ConvertListToJson(adjustEvent.partnerList);
 
             _AdjustTrackEvent(eventToken, revenue, currency, receipt, transactionId, isReceiptSet, stringJsonCallBackParameters, stringJsonPartnerParameters);
-        }        
+        }
 
         public static void SetEnabled(bool enabled)
         {
@@ -198,6 +176,7 @@ namespace com.adjust.sdk
         public static bool IsEnabled()
         {
             var iIsEnabled = _AdjustIsEnabled();
+
             return Convert.ToBoolean(iIsEnabled);
         }
 
@@ -262,53 +241,18 @@ namespace com.adjust.sdk
             return _AdjustGetAdid();
         }
 
-        public static void GdprForgetMe()
-        {
-            _AdjustGdprForgetMe();
-        }
-
         public static AdjustAttribution GetAttribution()
         {
             string attributionString = _AdjustGetAttribution();
+
             if (null == attributionString)
             {
                 return null;
             }
 
             var attribution = new AdjustAttribution(attributionString);
+
             return attribution;
-        }
-
-        public static void SetTestOptions(AdjustTestOptions testOptions)
-        {
-            long timerIntervalMls = testOptions.TimerIntervalInMilliseconds.HasValue ? testOptions.TimerIntervalInMilliseconds.Value : -1;
-            long timerStartMls = testOptions.TimerStartInMilliseconds.HasValue ? testOptions.TimerStartInMilliseconds.Value : -1;
-            long sessionIntMls = testOptions.SessionIntervalInMilliseconds.HasValue ? testOptions.SessionIntervalInMilliseconds.Value : -1;
-            long subsessionIntMls = testOptions.SubsessionIntervalInMilliseconds.HasValue ? testOptions.SubsessionIntervalInMilliseconds.Value : -1;
-            bool teardown = testOptions.Teardown.HasValue ? testOptions.Teardown.Value : false;
-            bool deleteState = testOptions.DeleteState.HasValue ? testOptions.DeleteState.Value : false;
-
-            _AdjustSetTestOptions(
-                testOptions.BaseUrl,
-                testOptions.BasePath,
-                testOptions.GdprUrl,
-                testOptions.GdprPath,
-                timerIntervalMls,
-                timerStartMls,
-                sessionIntMls,
-                subsessionIntMls, 
-                AdjustUtils.ConvertBool(teardown),
-                AdjustUtils.ConvertBool(deleteState));
-        }
-
-        public static void TrackSubsessionStart()
-        {
-            _AdjustTrackSubsessionStart();
-        }
-
-        public static void TrackSubsessionEnd()
-        {
-            _AdjustTrackSubsessionEnd();
         }
     }
 #endif

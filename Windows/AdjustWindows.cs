@@ -1,5 +1,4 @@
-#if UNITY_WSA
-using com.adjust.sdk.test;
+﻿#if UNITY_WSA
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +16,7 @@ namespace com.adjust.sdk
 {
     public class AdjustWindows
     {
-        private const string sdkPrefix = "unity4.13.0";
+        private const string sdkPrefix = "unity4.12.5";
         private static bool appLaunched = false;
 
         public static void Start(AdjustConfig adjustConfig)
@@ -222,12 +221,12 @@ namespace com.adjust.sdk
 
         public static void ResetSessionCallbackParameters()
         {
-            AdjustWinInterface.ResetSessionCallbackParameters();
+            AdjustWinInterface.ResetSessionCallbackParameters ();
         }
 
         public static string GetAdid()
         {
-            return AdjustWinInterface.GetAdid();
+            return AdjustWinInterface.GetAdid ();
         }
 
         public static AdjustAttribution GetAttribution()
@@ -241,33 +240,10 @@ namespace com.adjust.sdk
             return new AdjustAttribution(attributionMap);
         }
 
-        public static void GdprForgetMe()
-        {
-            AdjustWinInterface.GdprForgetMe();
-        }
-
         public static string GetWinAdId()
         {
             return AdjustWinInterface.GetWindowsAdId();
-        }
-
-        public static void SetTestOptions(AdjustTestOptions testOptions)
-        {
-            TestLibraryInterface.TestLibraryInterface.SetTestOptions(
-                new TestLibraryInterface.AdjustTestOptionsDto
-                {
-                    BasePath = testOptions.BasePath,
-                    GdprPath = testOptions.GdprPath,
-                    BaseUrl = testOptions.BaseUrl,
-                    GdprUrl = testOptions.GdprUrl,
-                    DeleteState = testOptions.DeleteState,
-                    SessionIntervalInMilliseconds = testOptions.SessionIntervalInMilliseconds,
-                    SubsessionIntervalInMilliseconds = testOptions.SubsessionIntervalInMilliseconds,
-                    TimerIntervalInMilliseconds = testOptions.TimerIntervalInMilliseconds,
-                    TimerStartInMilliseconds = testOptions.TimerStartInMilliseconds,
-                    Teardown = testOptions.Teardown
-                });
-        }
+        }    
     }
 }
 #endif
