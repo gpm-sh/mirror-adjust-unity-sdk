@@ -14,7 +14,7 @@
 @end
 
 // Method for converting JSON stirng parameters into NSArray object.
-NSArray* convertArrayParameters(const char* cStringJsonArrayParameters) {
+NSArray* ConvertArrayParameters(const char* cStringJsonArrayParameters) {
     if (cStringJsonArrayParameters == NULL) {
         return nil;
     }
@@ -36,23 +36,6 @@ NSArray* convertArrayParameters(const char* cStringJsonArrayParameters) {
     return arrayParameters;
 }
 
-BOOL isStringValid(const char* cString) {
-    if (cString == NULL) {
-        return false;
-    }
-
-    NSString *objcString = [NSString stringWithUTF8String:cString];
-    if (objcString == nil) {
-        return false;
-    }
-
-    if ([objcString isEqualToString:@"ADJ_INVALID"]) {
-        return false;
-    }
-
-    return true;
-}
-
 extern "C"
 {
     void addValueOrEmpty(NSMutableDictionary *dictionary, NSString *key, NSObject *value) {
@@ -63,36 +46,37 @@ extern "C"
         }
     }
 
-    void _AdjustLaunchApp(const char* appToken,
-                          const char* environment,
-                          const char* sdkPrefix,
-                          const char* userAgent,
-                          const char* defaultTracker,
-                          const char* sceneName,
-                          int allowSuppressLogLevel,
-                          int logLevel,
-                          int isDeviceKnown,
-                          int eventBuffering,
-                          int sendInBackground,
-                          long secretId,
-                          long info1,
-                          long info2,
-                          long info3,
-                          long info4,
-                          double delayStart,
-                          int launchDeferredDeeplink,
-                          int isAttributionCallbackImplemented,
-                          int isEventSuccessCallbackImplemented,
-                          int isEventFailureCallbackImplemented,
-                          int isSessionSuccessCallbackImplemented,
-                          int isSessionFailureCallbackImplemented,
-                          int isDeferredDeeplinkCallbackImplemented) {
-        NSString *stringAppToken = isStringValid(appToken) == true ? [NSString stringWithUTF8String:appToken] : nil;
-        NSString *stringEnvironment = isStringValid(environment) == true ? [NSString stringWithUTF8String:environment] : nil;
-        NSString *stringSdkPrefix = isStringValid(sdkPrefix) == true ? [NSString stringWithUTF8String:sdkPrefix] : nil;
-        NSString *stringUserAgent = isStringValid(userAgent) == true ? [NSString stringWithUTF8String:userAgent] : nil;
-        NSString *stringDefaultTracker = isStringValid(defaultTracker) == true ? [NSString stringWithUTF8String:defaultTracker] : nil;
-        NSString *stringSceneName = isStringValid(sceneName) == true ? [NSString stringWithUTF8String:sceneName] : nil;
+    void _AdjustLaunchApp(
+        const char* appToken, 
+        const char* environment, 
+        const char* sdkPrefix, 
+        int allowSuppressLogLevel, 
+        int logLevel,
+        int isDeviceKnown,
+        int eventBuffering, 
+        int sendInBackground,
+        long secretId,
+        long info1,
+        long info2,
+        long info3,
+        long info4,
+        double delayStart, 
+        const char* userAgent, 
+        const char* defaultTracker,
+        int launchDeferredDeeplink, 
+        const char* sceneName,
+        int isAttributionCallbackImplemented,
+        int isEventSuccessCallbackImplemented,
+        int isEventFailureCallbackImplemented,
+        int isSessionSuccessCallbackImplemented,
+        int isSessionFailureCallbackImplemented,
+        int isDeferredDeeplinkCallbackImplemented) {
+        NSString *stringSdkPrefix = [NSString stringWithUTF8String:sdkPrefix];
+        NSString *stringAppToken = [NSString stringWithUTF8String:appToken];
+        NSString *stringEnvironment = [NSString stringWithUTF8String:environment];
+        NSString *stringUserAgent = [NSString stringWithUTF8String:userAgent];
+        NSString *stringDefaultTracker = [NSString stringWithUTF8String:defaultTracker];
+        NSString *stringSceneName = [NSString stringWithUTF8String:sceneName];
 
         ADJConfig *adjustConfig;
 
@@ -108,12 +92,9 @@ extern "C"
         [adjustConfig setSdkPrefix:stringSdkPrefix];
 
         // Attribution delegate & other delegates
-        if (isAttributionCallbackImplemented
-            || isEventSuccessCallbackImplemented
-            || isEventFailureCallbackImplemented
-            || isSessionSuccessCallbackImplemented
-            || isSessionFailureCallbackImplemented
-            || isDeferredDeeplinkCallbackImplemented) {
+        if (isAttributionCallbackImplemented || isEventSuccessCallbackImplemented ||
+            isEventFailureCallbackImplemented || isSessionSuccessCallbackImplemented ||
+            isSessionFailureCallbackImplemented || isDeferredDeeplinkCallbackImplemented) {
             [adjustConfig setDelegate:
                 [AdjustUnityDelegate getInstanceWithSwizzleOfAttributionCallback:isAttributionCallbackImplemented
                                                           eventSucceededCallback:isEventSuccessCallbackImplemented
@@ -146,12 +127,16 @@ extern "C"
             [adjustConfig setDelayStart:delayStart];
         }
 
-        if (stringUserAgent != nil) {
-            [adjustConfig setUserAgent:stringUserAgent];
+        if (stringUserAgent != NULL) {
+            if ([stringUserAgent length] > 0) {
+                [adjustConfig setUserAgent:stringUserAgent];
+            }
         }
 
-        if (stringDefaultTracker != nil) {
-            [adjustConfig setDefaultTracker:stringDefaultTracker];
+        if (stringDefaultTracker != NULL) {
+            if ([stringDefaultTracker length] > 0) {
+                [adjustConfig setDefaultTracker:stringDefaultTracker];
+            }
         }
 
         if (secretId != -1 && info1 != -1 && info2 != -1 && info3 != -1 && info4 != 1) {
@@ -160,17 +145,12 @@ extern "C"
 
         // Launch adjust instance.
         [Adjust appDidLaunch:adjustConfig];
+
+        // Since v4.7.0 session is not automatically started after calling appDidLaunch, thus calling trackSubsessionStart.
         [Adjust trackSubsessionStart];
     }
 
-    void _AdjustTrackEvent(const char* eventToken,
-                           double revenue,
-                           const char* currency,
-                           const char* receipt,
-                           const char* transactionId,
-                           int isReceiptSet,
-                           const char* jsonCallbackParameters,
-                           const char* jsonPartnerParameters) {
+    void _AdjustTrackEvent(const char* eventToken, double revenue, const char* currency, const char* receipt, const char* transactionId, int isReceiptSet, const char* jsonCallbackParameters, const char* jsonPartnerParameters) {
         NSString *stringEventToken = [NSString stringWithUTF8String:eventToken];
 
         ADJEvent *event = [ADJEvent eventWithEventToken:stringEventToken];
@@ -181,7 +161,7 @@ extern "C"
             [event setRevenue:revenue currency:stringCurrency];
         }
 
-        NSArray *arrayCallbackParameters = convertArrayParameters(jsonCallbackParameters);
+        NSArray *arrayCallbackParameters = ConvertArrayParameters(jsonCallbackParameters);
 
         if (arrayCallbackParameters != nil) {
             NSUInteger count = [arrayCallbackParameters count];
@@ -197,7 +177,7 @@ extern "C"
             }
         }
 
-        NSArray *arrayPartnerParameters = convertArrayParameters(jsonPartnerParameters);
+        NSArray *arrayPartnerParameters = ConvertArrayParameters(jsonPartnerParameters);
 
         if (arrayPartnerParameters != nil) {
             NSUInteger count = [arrayPartnerParameters count];
