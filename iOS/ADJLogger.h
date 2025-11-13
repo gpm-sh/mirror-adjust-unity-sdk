@@ -27,7 +27,7 @@ typedef enum {
  *
  * @param logLevel Level of the logs to be displayed.
  */
-- (void)setLogLevel:(ADJLogLevel)logLevel isProductionEnvironment:(BOOL)isProductionEnvironment;
+- (void)setLogLevel:(ADJLogLevel)logLevel;
 
 /**
  * @brief Prevent log level changes.
@@ -53,7 +53,6 @@ typedef enum {
  * @brief Print warn logs.
  */
 - (void)warn:(nonnull NSString *)message, ...;
-- (void)warnInProduction:(nonnull NSString *)message, ...;
 
 /**
  * @brief Print error logs.
