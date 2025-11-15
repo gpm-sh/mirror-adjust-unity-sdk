@@ -7,196 +7,168 @@
 //
 
 #import <Foundation/Foundation.h>
-
 #import "ADJLogger.h"
 #import "ADJAttribution.h"
-#import "ADJEventSuccess.h"
-#import "ADJEventFailure.h"
 #import "ADJSessionSuccess.h"
 #import "ADJSessionFailure.h"
+#import "ADJEventSuccess.h"
+#import "ADJEventFailure.h"
 
 /**
- * @brief Optional delegate that will get informed about tracking results.
+ * Optional delegate that will get informed about tracking results
  */
 @protocol AdjustDelegate
 @optional
 
 /**
- * @brief Optional delegate method that gets called when the attribution information changed.
+ * Optional delegate method that gets called when the attribution information changed
  *
- * @param attribution The attribution information.
- *
- * @note See ADJAttribution for details.
+ * @param attribution   The attribution information.
+ *                      See ADJAttribution for details
  */
-- (void)adjustAttributionChanged:(nullable ADJAttribution *)attribution;
+- (void)adjustAttributionChanged:(ADJAttribution *)attribution;
 
 /**
- * @brief Optional delegate method that gets called when an event is tracked with success.
+ * Optional delegate method that gets called when an event is tracked with success
  *
- * @param eventSuccessResponseData The response information from tracking with success
- *
- * @note See ADJEventSuccess for details.
+ * @param eventSuccessResponseData  The response information from tracking with success
+ *                                  See ADJEventSuccess for details
  */
-- (void)adjustEventTrackingSucceeded:(nullable ADJEventSuccess *)eventSuccessResponseData;
+- (void)adjustEventTrackingSucceeded:(ADJEventSuccess *)eventSuccessResponseData;
 
 /**
- * @brief Optional delegate method that gets called when an event is tracked with failure.
+ * Optional delegate method that gets called when an event is tracked with failure
  *
- * @param eventFailureResponseData The response information from tracking with failure
- *
- * @note See ADJEventFailure for details.
+ * @param eventFailureResponseData  The response information from tracking with failure
+ *                                  See ADJEventFailure for details
  */
-- (void)adjustEventTrackingFailed:(nullable ADJEventFailure *)eventFailureResponseData;
+- (void)adjustEventTrackingFailed:(ADJEventFailure *)eventFailureResponseData;
 
 /**
- * @brief Optional delegate method that gets called when an session is tracked with success.
+ * Optional delegate method that gets called when an session is tracked with success
  *
- * @param sessionSuccessResponseData The response information from tracking with success
- *
- * @note See ADJSessionSuccess for details.
+ * @param sessionSuccessResponseData    The response information from tracking with success
+ *                                      See ADJSessionSuccess for details
  */
-- (void)adjustSessionTrackingSucceeded:(nullable ADJSessionSuccess *)sessionSuccessResponseData;
+- (void)adjustSessionTrackingSucceeded:(ADJSessionSuccess *)sessionSuccessResponseData;
 
 /**
- * @brief Optional delegate method that gets called when an session is tracked with failure.
+ * Optional delegate method that gets called when an session is tracked with failure
  *
- * @param sessionFailureResponseData The response information from tracking with failure
- *
- * @note See ADJSessionFailure for details.
+ * @param sessionFailureResponseData    The response information from tracking with failure
+ *                                      See ADJSessionFailure for details
  */
-- (void)adjustSessionTrackingFailed:(nullable ADJSessionFailure *)sessionFailureResponseData;
+- (void)adjustSessionTrackingFailed:(ADJSessionFailure *)sessionFailureResponseData;
 
 /**
- * @brief Optional delegate method that gets called when a deferred deep link is about to be opened by the adjust SDK.
+ * Optional delegate method that gets called when a deeplink is about to be opened by the adjust SDK
  *
- * @param deeplink The deep link url that was received by the adjust SDK to be opened.
- *
- * @return Boolean that indicates whether the deep link should be opened by the adjust SDK or not.
+ * @param   deeplink    The deeplink url that was received by the adjust SDK to be opened
+ * @return  boolean     Value that indicates whether the deeplink should be opened by the adjust SDK
  */
-- (BOOL)adjustDeeplinkResponse:(nullable NSURL *)deeplink;
+- (BOOL)adjustDeeplinkResponse:(NSURL *)deeplink;
 
 @end
 
-/**
- * @brief Adjust configuration object class.
- */
 @interface ADJConfig : NSObject<NSCopying>
 
+@property (nonatomic, copy) NSString *sdkPrefix;
+@property (nonatomic, copy) NSString *defaultTracker;
+@property (nonatomic, copy, readonly) NSString *appToken;
+@property (nonatomic, copy, readonly) NSString *environment;
+
 /**
- * @brief SDK prefix.
+ * Configuration object for the initialization of the Adjust SDK
  *
- * @note Not to be used by users, intended for non-native adjust SDKs only.
+ * @param appToken      The App Token of your app. This unique identifier can
+ *                      be found it in your dashboard at http://adjust.com and should always
+ *                      be 12 characters long
+ * @param environment   The current environment your app. We use this environment to
+ *                      distinguish between real traffic and artificial traffic from test devices.
+ *                      It is very important that you keep this value meaningful at all times!
+ *                      Especially if you are tracking revenue
  */
-@property (nonatomic, copy, nullable) NSString *sdkPrefix;
++ (ADJConfig *)configWithAppToken:(NSString *)appToken
+                      environment:(NSString *)environment;
+- (id)initWithAppToken:(NSString *)appToken
+           environment:(NSString *)environment;
 
 /**
- * @brief Default tracker to attribute organic installs to (optional).
- */
-@property (nonatomic, copy, nullable) NSString *defaultTracker;
-
-/**
- * @brief Adjust app token.
- */
-@property (nonatomic, copy, readonly, nonnull) NSString *appToken;
-
-/**
- * @brief Adjust environment variable.
- */
-@property (nonatomic, copy, readonly, nonnull) NSString *environment;
-
-/**
- * @brief Change the verbosity of Adjust's logs.
+ * Configuration object for the initialization of the Adjust SDK.
  *
- * @note You can increase or reduce the amount of logs from Adjust by passing
- *       one of the following parameters. Use ADJLogLevelSuppress to disable all logging.
- *       The desired minimum log level (default: info)
- *       Must be one of the following:
- *         - ADJLogLevelVerbose    (enable all logging)
- *         - ADJLogLevelDebug      (enable more logging)
- *         - ADJLogLevelInfo       (the default)
- *         - ADJLogLevelWarn       (disable info logging)
- *         - ADJLogLevelError      (disable warnings as well)
- *         - ADJLogLevelAssert     (disable errors as well)
- *         - ADJLogLevelSuppress   (suppress all logging)
+ * @param appToken              The App Token of your app. This unique identifier can
+ *                              be found it in your dashboard at http://adjust.com and should always
+ *                              be 12 characters long
+ * @param environment           The current environment your app. We use this environment to
+ *                              distinguish between real traffic and artificial traffic from test devices.
+ *                              It is very important that you keep this value meaningful at all times!
+ *                              Especially if you are tracking revenue
+ * @param allowSuppressLogLevel  If set to true, it allows usage of ADJLogLevelSuppress
+ *                              and replaces the default value for production environment
+ */
++ (ADJConfig *)configWithAppToken:(NSString *)appToken
+                      environment:(NSString *)environment
+             allowSuppressLogLevel:(BOOL)allowSuppressLogLevel;
+- (id)initWithAppToken:(NSString *)appToken
+           environment:(NSString *)environment
+  allowSuppressLogLevel:(BOOL)allowSuppressLogLevel;
+
+/**
+ * Change the verbosity of Adjust's logs
+ *
+ * You can increase or reduce the amount of logs from Adjust by passing
+ * one of the following parameters. Use ADJLogLevelSuppress to disable all logging
+ *
+ * @var logLevel The desired minimum log level (default: info)
+ *     Must be one of the following:
+ *      - ADJLogLevelVerbose    (enable all logging)
+ *      - ADJLogLevelDebug      (enable more logging)
+ *      - ADJLogLevelInfo       (the default)
+ *      - ADJLogLevelWarn       (disable info logging)
+ *      - ADJLogLevelError      (disable warnings as well)
+ *      - ADJLogLevelAssert     (disable errors as well)
+ *      - ADJLogLevelSuppress   (suppress all logging)
  */
 @property (nonatomic, assign) ADJLogLevel logLevel;
 
 /**
- * @brief Enable event buffering if your app triggers a lot of events.
- *        When enabled, events get buffered and only get tracked each
- *        minute. Buffered events are still persisted, of course.
+ * Enable event buffering if your app triggers a lot of events.
+ * When enabled, events get buffered and only get tracked each
+ * minute. Buffered events are still persisted, of course
+ *
+ * @var eventBufferingEnabled   Enable or disable event buffering
  */
 @property (nonatomic, assign) BOOL eventBufferingEnabled;
 
 /**
- * @brief Set the optional delegate that will inform you about attribution or events.
+ * Set the optional delegate that will inform you about attribution or events
  *
- * @note See the AdjustDelegate declaration above for details.
+ * See the AdjustDelegate declaration above for details
+ *
+ * @var delegate    The delegate that might implement the optional delegate methods
  */
-@property (nonatomic, weak, nullable) NSObject<AdjustDelegate> *delegate;
+@property (nonatomic, weak) NSObject<AdjustDelegate> *delegate;
 
 /**
- * @brief Enables sending in the background.
+ * Enables sending in the background
+ *
+ * @var sendInBackground    Enable or disable sending in the background
  */
 @property (nonatomic, assign) BOOL sendInBackground;
 
 /**
- * @brief Enables delayed start of the SDK.
+ * Enables delayed start of the SDK
+ *
+ * @var delayStart  Number of seconds after which SDK will start
  */
 @property (nonatomic, assign) double delayStart;
 
 /**
- * @brief User agent for the requests.
- */
-@property (nonatomic, copy, nullable) NSString *userAgent;
-
-/**
- * @brief Get configuration object for the initialization of the Adjust SDK.
+ * User agent for the requests.
  *
- * @param appToken The App Token of your app. This unique identifier can
- *                 be found it in your dashboard at http://adjust.com and should always
- *                 be 12 characters long.
- * @param environment The current environment your app. We use this environment to
- *                    distinguish between real traffic and artificial traffic from test devices.
- *                    It is very important that you keep this value meaningful at all times!
- *                    Especially if you are tracking revenue.
- *
- * @returns Adjust configuration object.
+ * @var userAgent   User agent value.
  */
-+ (nullable ADJConfig *)configWithAppToken:(nonnull NSString *)appToken
-                               environment:(nonnull NSString *)environment;
+@property (nonatomic, copy) NSString *userAgent;
 
-- (nullable id)initWithAppToken:(nonnull NSString *)appToken
-                    environment:(nonnull NSString *)environment;
-
-/**
- * @brief Configuration object for the initialization of the Adjust SDK.
- *
- * @param appToken The App Token of your app. This unique identifier can
- *                 be found it in your dashboard at http://adjust.com and should always
- *                 be 12 characters long.
- * @param environment The current environment your app. We use this environment to
- *                    distinguish between real traffic and artificial traffic from test devices.
- *                    It is very important that you keep this value meaningful at all times!
- *                    Especially if you are tracking revenue.
- * @param allowSuppressLogLevel If set to true, it allows usage of ADJLogLevelSuppress
- *                              and replaces the default value for production environment.
- *
- * @returns Adjust configuration object.
- */
-+ (nullable ADJConfig *)configWithAppToken:(nonnull NSString *)appToken
-                               environment:(nonnull NSString *)environment
-                     allowSuppressLogLevel:(BOOL)allowSuppressLogLevel;
-
-- (nullable id)initWithAppToken:(nonnull NSString *)appToken
-                    environment:(nonnull NSString *)environment
-          allowSuppressLogLevel:(BOOL)allowSuppressLogLevel;
-
-/**
- * @brief Check if adjust configuration object is valid.
- * 
- * @return Boolean indicating whether adjust config object is valid or not.
- */
-- (BOOL)isValid;
-
+- (BOOL) isValid;
 @end

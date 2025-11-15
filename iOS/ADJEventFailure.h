@@ -10,41 +10,25 @@
 
 @interface ADJEventFailure : NSObject
 
-/**
- * @brief Message from the adjust backend.
- */
+// error message from the server or the sdk.
 @property (nonatomic, copy) NSString * message;
 
-/**
- * @brief Timestamp from the adjust backend.
- */
+// timeStamp from the server.
 @property (nonatomic, copy) NSString * timeStamp;
 
-/**
- * @brief Adjust identifier of the device.
- */
+// adid of the device.
 @property (nonatomic, copy) NSString * adid;
 
-/**
- * @brief Event token value.
- */
+// event token of the tracked event.
 @property (nonatomic, copy) NSString * eventToken;
 
-/**
- * @brief Information whether sending of the package will be retried or not.
- */
+// indicates if the package will be retried to be send later
 @property (nonatomic, assign) BOOL willRetry;
 
-/**
- * @brief Backend response in JSON format.
- */
+// the server response in json format
 @property (nonatomic, strong) NSDictionary *jsonResponse;
 
-/**
- * @brief Initialisation method.
- *
- * @return ADJEventFailure instance.
- */
 + (ADJEventFailure *)eventFailureResponseData;
+- (id)init;
 
 @end

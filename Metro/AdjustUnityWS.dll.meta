@@ -1,34 +1,20 @@
 fileFormatVersion: 2
-guid: 1c39e80d6115a2646a4becbf204996fa
-timeCreated: 1485878776
+guid: 53e49be30e8ce9040b45bf09577f0e71
+timeCreated: 1439476160
 licenseType: Pro
 PluginImporter:
   serializedVersion: 1
   iconMap: {}
   executionOrder: {}
   isPreloaded: 0
-  isOverridable: 0
   platformData:
     Android:
       enabled: 0
       settings:
-        CPU: ARMv7
+        CPU: AnyCPU
     Any:
       enabled: 0
-      settings:
-        Exclude Android: 1
-        Exclude Editor: 1
-        Exclude Linux: 1
-        Exclude Linux64: 1
-        Exclude LinuxUniversal: 1
-        Exclude OSXIntel: 1
-        Exclude OSXIntel64: 1
-        Exclude OSXUniversal: 1
-        Exclude Win: 1
-        Exclude Win64: 1
-        Exclude WindowsStoreApps: 0
-        Exclude iOS: 1
-        Exclude tvOS: 1
+      settings: {}
     Editor:
       enabled: 0
       settings:
@@ -43,10 +29,6 @@ PluginImporter:
       enabled: 0
       settings:
         CPU: x86_64
-    LinuxUniversal:
-      enabled: 0
-      settings:
-        CPU: None
     OSXIntel:
       enabled: 0
       settings:
@@ -55,10 +37,16 @@ PluginImporter:
       enabled: 0
       settings:
         CPU: AnyCPU
-    OSXUniversal:
+    SamsungTV:
       enabled: 0
       settings:
-        CPU: None
+        STV_MODEL: STANDARD_13
+    WP8:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
+        DontProcess: False
+        PlaceholderPath: 
     Win:
       enabled: 0
       settings:
@@ -71,16 +59,10 @@ PluginImporter:
       enabled: 1
       settings:
         CPU: AnyCPU
-        DontProcess: False
-        PlaceholderPath: Assets/Adjust/AdjustUnityWS81.dll
-        SDK: PhoneSDK81
-        ScriptingBackend: AnyScriptingBackend
+        DontProcess: True
+        PlaceholderPath: Assets/Adjust/AdjustUnityWS.dll
+        SDK: AnySDK
     iOS:
-      enabled: 0
-      settings:
-        CompileFlags: 
-        FrameworkDependencies: 
-    tvOS:
       enabled: 0
       settings:
         CompileFlags: 

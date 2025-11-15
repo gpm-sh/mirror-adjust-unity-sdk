@@ -4,21 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
-#if UNITY_WSA_10_0
-using AdjustUnityWS10;
-#elif UNITY_WINRT_8_1
-using AdjustUnityWS81;
-#endif
+using AdjustUnityWS;
+
 namespace com.adjust.sdk {
     public class AdjustMetro : IAdjust {
         private const string sdkPrefix = "unity4.11.0";
 
         public bool isEnabled() {
-#if UNITY_WSA_10_0
-            return AdjustWS10.IsEnabled();
-#elif UNITY_WINRT_8_1
-            return AdjustWS81.IsEnabled();
-#endif
+            return AdjustWS.IsEnabled();
         }
 
         public string getAdid() {
@@ -30,54 +23,35 @@ namespace com.adjust.sdk {
         }
 
         public void onPause() {
-#if UNITY_WSA_10_0
-            AdjustWS10.ApplicationDeactivated();
-#elif UNITY_WINRT_8_1
-            AdjustWS81.ApplicationDeactivated();
-#endif
+            AdjustWS.ApplicationDeactivated();
         }
 
         public void onResume() {
-#if UNITY_WSA_10_0
-            AdjustWS10.ApplicationActivated();
-#elif UNITY_WINRT_8_1
-            AdjustWS81.ApplicationActivated();
-#endif
+            AdjustWS.ApplicationActivated();
         }
 
         public void setEnabled(bool enabled) {
-#if UNITY_WSA_10_0
-            AdjustWS10.SetEnabled(enabled);
-#elif UNITY_WINRT_8_1
-            AdjustWS81.SetEnabled(enabled);
-#endif
+            AdjustWS.SetEnabled(enabled);
         }
 
         public void setOfflineMode(bool offlineMode) {
-#if UNITY_WSA_10_0
-            AdjustWS10.SetOfflineMode(offlineMode);
-#elif UNITY_WINRT_8_1
-            AdjustWS81.SetOfflineMode(offlineMode);
-#endif
+            AdjustWS.SetOfflineMode(offlineMode);
         }
 
         public void start(AdjustConfig adjustConfig) {
             string logLevelString = null;
-            string environment = lowercaseToString(adjustConfig.environment);
+            string environment = adjustConfig.environment.lowercaseToString();
             Action<Dictionary<string, string>> attributionChangedDictionary = null;
 
-            if (adjustConfig.logLevel.HasValue) {
-                logLevelString = lowercaseToString(adjustConfig.logLevel.Value);
+            if (adjustConfig.logLevel != null) {
+                logLevelString = adjustConfig.lowercaseToString();
             }
 
             if (adjustConfig.attributionChangedDelegate != null) {
                 attributionChangedDictionary = (attributionDictionary) => Adjust.runAttributionChangedDictionary(attributionDictionary);
             }
-#if UNITY_WSA_10_0
-            AdjustWS10.ApplicationLaunching(
-#elif UNITY_WINRT_8_1
-            AdjustWS81.ApplicationLaunching(
-#endif
+
+            AdjustWS.ApplicationLaunching(
                 appToken:adjustConfig.appToken,
                 logLevelString:logLevelString,
                 environment:environment,
@@ -89,48 +63,8 @@ namespace com.adjust.sdk {
             );
         }
 
-        public static string lowercaseToString(AdjustLogLevel AdjustLogLevel)
-        {
-            switch (AdjustLogLevel)
-            {
-                case AdjustLogLevel.Verbose:
-                    return "verbose";
-                case AdjustLogLevel.Debug:
-                    return "debug";
-                case AdjustLogLevel.Info:
-                    return "info";
-                case AdjustLogLevel.Warn:
-                    return "warn";
-                case AdjustLogLevel.Error:
-                    return "error";
-                case AdjustLogLevel.Assert:
-                    return "assert";
-                case AdjustLogLevel.Suppress:
-                    return "suppress";
-                default:
-                    return "unknown";
-            }
-        }
-
-        public static string lowercaseToString(AdjustEnvironment adjustEnvironment)
-        {
-            switch (adjustEnvironment)
-            {
-                case AdjustEnvironment.Sandbox:
-                    return "sandbox";
-                case AdjustEnvironment.Production:
-                    return "production";
-                default:
-                    return "unknown";
-            }
-        }
-
         public void trackEvent(AdjustEvent adjustEvent) {
-#if UNITY_WSA_10_0
-            AdjustWS10.TrackEvent(
-#elif UNITY_WINRT_8_1
-            AdjustWS81.TrackEvent(
-#endif
+            AdjustWS.TrackEvent(
                 eventToken:adjustEvent.eventToken,
                 revenue:adjustEvent.revenue,
                 currency:adjustEvent.currency,

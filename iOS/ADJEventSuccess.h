@@ -10,36 +10,22 @@
 
 @interface ADJEventSuccess : NSObject
 
-/**
- * @brief Message from the adjust backend.
- */
-@property (nonatomic, copy) NSString *message;
+// message from the server.
+@property (nonatomic, copy) NSString * message;
 
-/**
- * @brief Timestamp from the adjust backend.
- */
-@property (nonatomic, copy) NSString *timeStamp;
+// timeStamp from the server.
+@property (nonatomic, copy) NSString * timeStamp;
 
-/**
- * @brief Adjust identifier of the device.
- */
-@property (nonatomic, copy) NSString *adid;
+// adid of the device.
+@property (nonatomic, copy) NSString * adid;
 
-/**
- * @brief Event token value.
- */
-@property (nonatomic, copy) NSString *eventToken;
+// event token of the tracked event.
+@property (nonatomic, copy) NSString * eventToken;
 
-/**
- * @brief Backend response in JSON format.
- */
+// the server response in json format
 @property (nonatomic, strong) NSDictionary *jsonResponse;
 
-/**
- * @brief Initialisation method.
- *
- * @return ADJEventSuccess instance.
- */
 + (ADJEventSuccess *)eventSuccessResponseData;
+- (id)init;
 
 @end
