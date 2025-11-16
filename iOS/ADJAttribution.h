@@ -34,14 +34,10 @@
 // tracker click_label
 @property (nonatomic, copy) NSString *clickLabel;
 
-@property (nonatomic, copy) NSString *adid;
-
 - (BOOL)isEqualToAttribution:(ADJAttribution *)attribution;
 
-+ (ADJAttribution *)dataWithJsonDict:(NSDictionary *)jsonDict
-                                adid:(NSString *)adid;
-- (id)initWithJsonDict:(NSDictionary *)jsonDict
-                  adid:(NSString *)adid;
++ (ADJAttribution *)dataWithJsonDict:(NSDictionary *)jsonDict;
+- (id)initWithJsonDict:(NSDictionary *)jsonDict;
 - (NSDictionary *)dictionary;
 
 @end

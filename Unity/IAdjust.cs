@@ -4,8 +4,6 @@ using System.Collections.Generic;
 namespace com.adjust.sdk {
     public interface IAdjust {
         bool isEnabled();
-        string getAdid();
-        AdjustAttribution getAttribution();
 
         void onPause();
         void onResume();

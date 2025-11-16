@@ -253,24 +253,6 @@ namespace com.adjust.sdk {
                 return;
             #endif
         }
-
-        public static string getAdid() {
-            if (Adjust.instance == null) {
-                Debug.Log(Adjust.errorMessage);
-                return null;
-            }
-
-            return Adjust.instance.getAdid();
-        }
-
-        public static AdjustAttribution getAttribution() {
-            if (Adjust.instance == null) {
-                Debug.Log(Adjust.errorMessage);
-                return null;
-            }
-
-            return Adjust.instance.getAttribution();
-        }
         
         // iOS specific methods
         public static void setDeviceToken(string deviceToken) {
@@ -408,35 +390,31 @@ namespace com.adjust.sdk {
             Debug.Log("Attribution changed!");
 
             if (attributionData.trackerName != null) {
-                Debug.Log("Tracker name: " + attributionData.trackerName);
+                Debug.Log("trackerName " + attributionData.trackerName);
             }
 
             if (attributionData.trackerToken != null) {
-                Debug.Log("Tracker token: " + attributionData.trackerToken);
+                Debug.Log("trackerToken " + attributionData.trackerToken);
             }
 
             if (attributionData.network != null) {
-                Debug.Log("Network: " + attributionData.network);
+                Debug.Log("network " + attributionData.network);
             }
 
             if (attributionData.campaign != null) {
-                Debug.Log("Campaign: " + attributionData.campaign);
+                Debug.Log("campaign " + attributionData.campaign);
             }
 
             if (attributionData.adgroup != null) {
-                Debug.Log("Adgroup: " + attributionData.adgroup);
+                Debug.Log("adgroup " + attributionData.adgroup);
             }
 
             if (attributionData.creative != null) {
-                Debug.Log("Creative: " + attributionData.creative);
+                Debug.Log("creative " + attributionData.creative);
             }
 
             if (attributionData.clickLabel != null) {
-                Debug.Log("Click label: " + attributionData.clickLabel);
-            }
-
-            if (attributionData.adid != null) {
-                Debug.Log("ADID: " + attributionData.adid);
+                Debug.Log("clickLabel" + attributionData.clickLabel);
             }
         }
 

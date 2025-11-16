@@ -8,7 +8,7 @@ namespace com.adjust.sdk {
 #if UNITY_IOS
     public class AdjustiOS : IAdjust {
         #region Fields
-        private const string sdkPrefix = "unity4.11.0";
+        private const string sdkPrefix = "unity4.10.3";
         #endregion
 
         #region External methods
@@ -36,12 +36,6 @@ namespace com.adjust.sdk {
 
         [DllImport("__Internal")]
         private static extern string _AdjustGetIdfa();
-
-        [DllImport("__Internal")]
-        private static extern string _AdjustGetAdid();
-
-        [DllImport("__Internal")]
-        private static extern string _AdjustGetAttribution();
 
         [DllImport("__Internal")]
         private static extern void _AdjustSendFirstPackages();
@@ -175,22 +169,6 @@ namespace com.adjust.sdk {
 
         public string getIdfa() {
             return _AdjustGetIdfa();
-        }
-
-        public string getAdid() {
-            return _AdjustGetAdid();
-        }
-
-        public AdjustAttribution getAttribution() {
-            string attributionString = _AdjustGetAttribution();
-
-            if (null == attributionString) {
-                return null;
-            }
-
-            var attribution = new AdjustAttribution(attributionString);
-
-            return attribution;
         }
 
         // Android specific methods

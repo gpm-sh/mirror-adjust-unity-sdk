@@ -4,7 +4,6 @@ using System.Collections.Generic;
 namespace com.adjust.sdk {
     public class AdjustAttribution {
         #region Properties
-        public string adid {get; set; }
         public string network { get; set; }
         public string adgroup { get; set; }
         public string campaign { get; set; }
@@ -31,7 +30,6 @@ namespace com.adjust.sdk {
             adgroup = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyAdgroup);
             creative = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyCreative);
             clickLabel = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyClickLabel);
-            adid = AdjustUtils.GetJsonString(jsonNode, AdjustUtils.KeyAdid);
         }
 
         public AdjustAttribution(Dictionary<string, string> dicAttributionData) {
@@ -46,7 +44,6 @@ namespace com.adjust.sdk {
             adgroup = TryGetValue(dicAttributionData, AdjustUtils.KeyAdgroup);
             creative = TryGetValue(dicAttributionData, AdjustUtils.KeyCreative);
             clickLabel = TryGetValue(dicAttributionData, AdjustUtils.KeyClickLabel);
-            adid = TryGetValue(dicAttributionData, AdjustUtils.KeyAdid);
         }
         #endregion
 
