@@ -8,7 +8,7 @@ using AdjustUnityWS;
 
 namespace com.adjust.sdk {
     public class AdjustMetro : IAdjust {
-        private const string sdkPrefix = "unity4.10.1";
+        private const string sdkPrefix = "unity4.10.0";
 
         public bool isEnabled() {
             return AdjustWS.IsEnabled();
