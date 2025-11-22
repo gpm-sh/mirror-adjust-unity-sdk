@@ -10,14 +10,11 @@ namespace com.adjust.sdk
     public class AdjustAndroid : IAdjust
     {
         #region Fields
-        private const string sdkPrefix = "unity4.7.0";
-
-        private static bool launchDeferredDeeplink = true;
+        private const string sdkPrefix = "unity4.6.0";
 
         private AndroidJavaClass ajcAdjust;
         private AndroidJavaObject ajoCurrentActivity;
 
-        private DeferredDeeplinkListener onDeferredDeeplinkListener;
         private AttributionChangeListener onAttributionChangedListener;
         private EventTrackingFailedListener onEventTrackingFailedListener;
         private EventTrackingSucceededListener onEventTrackingSucceededListener;
@@ -45,9 +42,6 @@ namespace com.adjust.sdk
             // Create adjust config object.
             AndroidJavaObject ajoAdjustConfig = new AndroidJavaObject ("com.adjust.sdk.AdjustConfig", ajoCurrentActivity, adjustConfig.appToken, ajoEnvironment);
 
-            // Check if deferred deeplink should be launched by SDK.
-            launchDeferredDeeplink = adjustConfig.launchDeferredDeeplink;
-
             // Check log level.
             if (adjustConfig.logLevel != null)
             {
@@ -64,12 +58,6 @@ namespace com.adjust.sdk
             {
                 AndroidJavaObject ajoIsEnabled = new AndroidJavaObject ("java.lang.Boolean", adjustConfig.eventBufferingEnabled.Value);
                 ajoAdjustConfig.Call ("setEventBufferingEnabled", ajoIsEnabled);
-            }
-
-            // Check if user enabled tracking in the background.
-            if (adjustConfig.sendInBackground != null)
-            {
-                ajoAdjustConfig.Call ("setSendInBackground", adjustConfig.sendInBackground.Value);
             }
 
             // Check attribution changed delagate setting.
@@ -105,13 +93,6 @@ namespace com.adjust.sdk
             {
                 onSessionTrackingFailedListener = new SessionTrackingFailedListener (adjustConfig.sessionFailureDelegate);
                 ajoAdjustConfig.Call ("setOnSessionTrackingFailedListener", onSessionTrackingFailedListener);
-            }
-
-            // Check deferred deeplink delegate setting.
-            if (adjustConfig.deferredDeeplinkDelegate != null)
-            {
-                onDeferredDeeplinkListener = new DeferredDeeplinkListener (adjustConfig.deferredDeeplinkDelegate);
-                ajoAdjustConfig.Call ("setOnDeeplinkResponseListener", onDeferredDeeplinkListener);
             }
 
             // Set unity SDK prefix.
@@ -236,30 +217,6 @@ namespace com.adjust.sdk
                 adjustAttribution.clickLabel = attribution.Get<string> (AdjustUtils.KeyClickLabel);
 
                 callback (adjustAttribution);
-            }
-        }
-
-        private class DeferredDeeplinkListener : AndroidJavaProxy
-        {
-            private Action<string> callback;
-
-            public DeferredDeeplinkListener (Action<string> pCallback) : base ("com.adjust.sdk.OnDeeplinkResponseListener")
-            {
-                this.callback = pCallback;
-            }
-
-            public bool launchReceivedDeeplink (AndroidJavaObject deeplink)
-            {
-                if (callback == null)
-                {
-                    return launchDeferredDeeplink;
-                }
-
-                string deeplinkURL = deeplink.Call<string> ("toString");
-
-                callback(deeplinkURL);
-
-                return launchDeferredDeeplink;
             }
         }
 

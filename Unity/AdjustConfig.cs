@@ -9,14 +9,11 @@ namespace com.adjust.sdk
         internal string sceneName;
         internal string defaultTracker;
 
-        internal bool? sendInBackground;
         internal bool? eventBufferingEnabled;
-        internal bool launchDeferredDeeplink;
 
         internal AdjustLogLevel? logLevel;
         internal AdjustEnvironment environment;
 
-        internal Action<string> deferredDeeplinkDelegate;
         internal Action<AdjustEventSuccess> eventSuccessDelegate;
         internal Action<AdjustEventFailure> eventFailureDelegate;
         internal Action<AdjustSessionSuccess> sessionSuccessDelegate;
@@ -51,30 +48,9 @@ namespace com.adjust.sdk
             this.defaultTracker = defaultTracker;
         }
 
-        public void setLaunchDeferredDeeplink (bool launchDeferredDeeplink)
-        {
-            this.launchDeferredDeeplink = launchDeferredDeeplink;
-        }
-
-        public void setSendInBackground (bool sendInBackground)
-        {
-            this.sendInBackground = sendInBackground;
-        }
-
         public void setEventBufferingEnabled (bool eventBufferingEnabled)
         {
             this.eventBufferingEnabled = eventBufferingEnabled;
-        }
-
-        public void setDeferredDeeplinkDelegate (Action<string> deferredDeeplinkDelegate, string sceneName = "Adjust")
-        {
-            this.deferredDeeplinkDelegate = deferredDeeplinkDelegate;
-            this.sceneName = sceneName;
-        }
-
-        public Action<string> getDeferredDeeplinkDelegate ()
-        {
-            return this.deferredDeeplinkDelegate;
         }
 
         public void setAttributionChangedDelegate (Action<AdjustAttribution> attributionChangedDelegate, string sceneName = "Adjust")

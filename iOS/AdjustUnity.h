@@ -7,6 +7,5 @@
 - (void)adjustEventTrackingFailed:(ADJEventFailure *)eventFailureResponseData;
 - (void)adjustSessionTrackingSucceeded:(ADJSessionSuccess *)sessionSuccessResponseData;
 - (void)adjustSessionTrackingFailed:(ADJSessionFailure *)sessionFailureResponseData;
-- (BOOL)adjustDeeplinkResponse:(NSURL *)deeplink;
 
 @end
