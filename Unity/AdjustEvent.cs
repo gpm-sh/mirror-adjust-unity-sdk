@@ -3,74 +3,66 @@ using System.Collections.Generic;
 
 namespace com.adjust.sdk
 {
-    public class AdjustEvent
-    {
-        #region Fields
-        internal double? revenue;
+	public class AdjustEvent
+	{
+		internal double? revenue;
 
-        internal string currency;
-        internal string eventToken;
+		internal string currency;
+		internal string eventToken;
 
-        internal List<string> partnerList;
-        internal List<string> callbackList;
+		internal List<string> partnerList;
+		internal List<string> callbackList;
 
-        // iOS specific members
-        internal string receipt;
-        internal string transactionId;
+		// iOS specific members
+		internal string receipt;
+		internal string transactionId;
 
-        internal bool isReceiptSet;
-        #endregion
+		internal bool isReceiptSet;
 
-        #region Constructors
-        public AdjustEvent (string eventToken)
-        {
-            this.eventToken = eventToken;
-            this.isReceiptSet = false;
-        }
-        #endregion
+		public AdjustEvent(string eventToken)
+		{
+			this.eventToken = eventToken;
 
-        #region Public methods
-        public void setRevenue (double amount, string currency)
-        {
-            this.revenue = amount;
-            this.currency = currency;
-        }
+			this.isReceiptSet = false;
+		}
 
-        public void addCallbackParameter (string key, string value)
-        {
-            if (callbackList == null)
-            {
-                callbackList = new List<string> ();
-            }
+		public void setRevenue(double amount, string currency)
+		{
+			this.revenue = amount;
+			this.currency = currency;
+		}
 
-            callbackList.Add (key);
-            callbackList.Add (value);
-        }
+		public void addCallbackParameter(string key, string value)
+		{
+			if (callbackList == null) {
+				callbackList = new List<string>();
+			}
 
-        public void addPartnerParameter (string key, string value)
-        {
-            if (partnerList == null)
-            {
-                partnerList = new List<string> ();
-            }
+			callbackList.Add(key);
+			callbackList.Add(value);
+		}
 
-            partnerList.Add (key);
-            partnerList.Add (value);
-        }
+		public void addPartnerParameter(string key, string value)
+		{
+			if (partnerList == null) {
+				partnerList = new List<string>();
+			}
 
-        // iOS specific methods
-        public void setTransactionId (string transactionId)
-        {
-            this.transactionId = transactionId;
-        }
+			partnerList.Add(key);
+			partnerList.Add(value);
+		}
 
-        [Obsolete("This is an obsolete method. Please use the adjust purchase SDK for purchase verification (https://github.com/adjust/unity_purchase_sdk)")]
-        public void setReceipt (string receipt, string transactionId)
-        {
-            this.receipt = receipt;
-            this.transactionId = transactionId;
-            this.isReceiptSet = true;
-        }
-        #endregion
-    }
+		// iOS specific methods
+		public void setTransactionId(string transactionId)
+		{
+			this.transactionId = transactionId;
+		}
+
+		public void setReceipt(string receipt, string transactionId)
+		{
+			this.receipt = receipt;
+			this.transactionId = transactionId;
+			this.isReceiptSet = true;
+		}
+	}
 }

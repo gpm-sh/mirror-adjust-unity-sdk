@@ -48,7 +48,7 @@ using System.Collections.Generic;
 using System.Linq;
  
  
-namespace com.adjust.sdk
+namespace SimpleJSON
 {
     public enum JSONBinaryTag
     {
