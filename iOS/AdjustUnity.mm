@@ -176,14 +176,4 @@ extern "C"
 
         [Adjust setDeviceToken:[stringDeviceToken dataUsingEncoding:NSUTF8StringEncoding]];
     }
-
-    char* _AdjustGetIdfa() {
-        NSString * idfa = [Adjust idfa];
-
-        const char * idfaCString = [idfa UTF8String];
-
-        char * idfaCStringCopy = strdup(idfaCString);
-
-        return idfaCStringCopy;
-    }
 }

@@ -9,7 +9,7 @@ namespace com.adjust.sdk
 {
 	public class AdjustWP8 : IAdjust
 	{
-		private const string sdkPrefix = "unity4.1.3";
+		private const string sdkPrefix = "unity4.1.2";
 
 		public bool isEnabled()
 		{
@@ -36,7 +36,7 @@ namespace com.adjust.sdk
 			string logLevelString = null;
 			if (adjustConfig.logLevel != null) 
 			{
-				logLevelString = adjustConfig.logLevel.lowercaseToString();
+				logLevelString = adjustConfig.logLevel.ToString();
 			}
 
 			Action<Dictionary<string, string>> attributionChangedDictionary = null;
@@ -45,12 +45,10 @@ namespace com.adjust.sdk
 				attributionChangedDictionary = (attributionDictionary) => Adjust.runAttributionChangedDictionary(attributionDictionary);
 			}
 
-			string environment = adjustConfig.environment.lowercaseToString ();
-
 			AdjustWP.ApplicationLaunching (
 				appToken: adjustConfig.appToken,
 				logLevelString: logLevelString,
-				environment: environment,
+				environment: adjustConfig.environment.ToString ().ToLower (),
 				defaultTracker: adjustConfig.defaultTracker,
 				eventBufferingEnabled: adjustConfig.eventBufferingEnabled,
 				sdkPrefix: sdkPrefix,
@@ -70,16 +68,8 @@ namespace com.adjust.sdk
 		}
         // iOS specific methods
         public void setDeviceToken(string deviceToken) { }
-
-		public string getIdfa()
-		{
-			return null;
-		}
-
-		// Android specific methods
-		public void setReferrer (string referrer) { }
-
-		public void getGoogleAdId (Action<string> onDeviceIdsRead) { }
+        // Android specific methods
+        public void setReferrer(string referrer) { }
 	}
 }
 #endif
