@@ -9,7 +9,7 @@ namespace com.adjust.sdk
 {
 	public class AdjustMetro : IAdjust
 	{
-		private const string sdkPrefix = "unity4.1.1";
+		private const string sdkPrefix = "unity4.1.0";
 
 		public bool isEnabled()
 		{
@@ -52,8 +52,7 @@ namespace com.adjust.sdk
 				defaultTracker: adjustConfig.defaultTracker,
 				eventBufferingEnabled: adjustConfig.eventBufferingEnabled,
 				sdkPrefix: sdkPrefix,
-				attributionChangedDic: attributionChangedDictionary,
-                logDelegate: adjustConfig.logDelegate
+				attributionChangedDic: attributionChangedDictionary
 			);
 		}
 		public void trackEvent (AdjustEvent adjustEvent)
