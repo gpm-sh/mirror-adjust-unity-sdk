@@ -75,10 +75,6 @@ namespace com.adjust.sdk
 				Adjust.instance = new AdjustiOS ();
 			#elif UNITY_ANDROID
 				Adjust.instance = new AdjustAndroid ();
-			#elif UNITY_WP8
-				Adjust.instance = new AdjustWP8 ();
-			#elif UNITY_METRO
-				Adjust.instance = new AdjustMetro ();
 			#else
 				Adjust.instance = null;
 			#endif
@@ -164,10 +160,10 @@ namespace com.adjust.sdk
 
 		public void getNativeMessage (string sAttributionData)
 		{
-			Adjust.runAttributionChangedString (sAttributionData);
+			Adjust.runAttributionChangedDelegate (sAttributionData);
 		}
-
-		public static void runAttributionChangedString (string stringAttributionData)
+		
+		public static void runAttributionChangedDelegate (string stringAttributionData)
 		{
 			if (instance == null) {
 				Debug.Log (Adjust.errorMessage);
@@ -180,21 +176,6 @@ namespace com.adjust.sdk
 			}
 			
 			var attribution = new AdjustAttribution (stringAttributionData);
-			Adjust.attributionChangedDelegate (attribution);
-		}
-
-		public static void runAttributionChangedDictionary (Dictionary<string, string> dicAttributionData)
-		{
-			if (instance == null) {
-				Debug.Log (Adjust.errorMessage);
-				return;
-			}
-			if (Adjust.attributionChangedDelegate == null) {
-				Debug.Log ("adjust: Attribution changed delegate was not set.");
-				return;
-			}
-			
-			var attribution = new AdjustAttribution (dicAttributionData);
 			Adjust.attributionChangedDelegate (attribution);
 		}
 
