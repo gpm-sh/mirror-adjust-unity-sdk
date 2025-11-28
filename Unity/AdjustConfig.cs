@@ -8,6 +8,7 @@ namespace com.adjust.sdk
 		internal string sceneName;
 		internal string defaultTracker;
 
+		internal bool? startAutomatically;
 		internal bool? eventBufferingEnabled;
 
 		internal AdjustLogLevel? logLevel;
@@ -25,6 +26,7 @@ namespace com.adjust.sdk
 			this.sceneName = "";
 			this.appToken = appToken;
 			this.environment = environment;
+			this.startAutomatically = false;
 			this.macMd5TrackingEnabled = false;
 			this.processName = "";
 		}
@@ -32,6 +34,11 @@ namespace com.adjust.sdk
 		public void setLogLevel (AdjustLogLevel logLevel)
 		{
 			this.logLevel = logLevel;
+		}
+
+		public void setStartAutomatically (bool shouldStartAutomatically)
+		{
+			this.startAutomatically = shouldStartAutomatically;
 		}
 
 		public void setDefaultTracker (string defaultTracker)
