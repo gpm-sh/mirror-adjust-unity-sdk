@@ -10,7 +10,7 @@ namespace com.adjust.sdk
 #if UNITY_ANDROID
 	public class AdjustAndroid : IAdjust
 	{
-		private const string sdkPrefix = "unity4.0.3";
+		private const string sdkPrefix = "unity4.0.2";
 		private AndroidJavaClass ajcAdjust;
 		private AndroidJavaObject ajoCurrentActivity;
 		private AttributionChangeListener onAttributionChangedListener;
@@ -34,7 +34,6 @@ namespace com.adjust.sdk
 				adjustAttribution.campaign = attribution.Get<string> ("campaign");
 				adjustAttribution.adgroup = attribution.Get<string> ("adgroup");
 				adjustAttribution.creative = attribution.Get<string> ("creative");
-				adjustAttribution.clickLabel = attribution.Get<string> ("clickLabel");
 
 				if (callback != null) {
 					callback (adjustAttribution);
@@ -133,16 +132,6 @@ namespace com.adjust.sdk
 		public void setOfflineMode (bool enabled)
 		{
 			ajcAdjust.CallStatic ("setOfflineMode", enabled);
-		}
-
-		public void setReferrer(string referrer)
-		{
-			ajcAdjust.CallStatic ("setReferrer", referrer);
-		}
-
-		public void setDeviceToken(string deviceToken)
-		{
-
 		}
 
 		#endregion

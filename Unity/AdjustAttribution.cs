@@ -18,8 +18,6 @@ namespace com.adjust.sdk
 
 		public string creative { get; set; }
 
-		public string clickLabel { get; set; }
-
 		public AdjustAttribution ()
 		{
 		}
@@ -38,7 +36,6 @@ namespace com.adjust.sdk
 			campaign = getJsonString (jsonNode, "campaign");
 			adgroup = getJsonString (jsonNode, "adgroup");
 			creative = getJsonString (jsonNode, "creative");
-			clickLabel = getJsonString (jsonNode, "clickLabel");
 		}
 		
 		private String getJsonString (JSONNode node, string key)

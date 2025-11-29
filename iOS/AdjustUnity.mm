@@ -54,7 +54,8 @@ NSArray* ConvertArrayParameters (const char* cStringJsonArrayParameters) {
 
 extern "C"
 {
-    void _AdjustLaunchApp(const char* appToken, const char* environment, const char* sdkPrefix, int logLevel, int eventBuffering, int macMd5TrackingEnabled, const char* sceneName) {
+    void _AdjustLaunchApp(const char* appToken, const char* environment, const char* sdkPrefix, int logLevel, int eventBuffering, const char* sceneName) {
+        // Mandatory fields.
         NSString *stringSdkPrefix = [NSString stringWithUTF8String:sdkPrefix];
         NSString *stringAppToken = [NSString stringWithUTF8String:appToken];
         NSString *stringEnvironment = [NSString stringWithUTF8String:environment];
@@ -74,25 +75,21 @@ extern "C"
             [adjustConfig setEventBufferingEnabled:(BOOL)eventBuffering];
         }
 
-        if (macMd5TrackingEnabled != -1) {
-            [adjustConfig setMacMd5TrackingEnabled:(BOOL)macMd5TrackingEnabled];
-        }
-
         if (sceneName != NULL && [stringSceneName length] > 0) {
             adjustSceneName = strdup(sceneName);
             adjustUnityInstance = [[AdjustUnity alloc] init];
-            [adjustConfig setDelegate:(id)adjustUnityInstance];
+            [adjustConfig setDelegate:adjustUnityInstance];
         }
 
-        NSLog(@"%@, %@, %@, %d, %d, %d, %@", stringAppToken, stringEnvironment, stringSdkPrefix, logLevel, eventBuffering, macMd5TrackingEnabled, stringSceneName);
+        NSLog(@"%@, %@, %@, %d, %d, %@", stringAppToken, stringEnvironment, stringSdkPrefix, logLevel, eventBuffering, stringSceneName);
 
         // Launch adjust instance.
         [Adjust appDidLaunch:adjustConfig];
     }
 
-    void _AdjustTrackEvent(const char* eventToken, double revenue, const char* currency, const char* receipt, const char* transactionId, int isReceiptSet, const char* jsonCallbackParameters, const char* jsonPartnerParameters) {
+    void _AdjustTrackEvent(const char* eventToken, double revenue, const char* currency, const char* jsonCallbackParameters, const char* jsonPartnerParameters) {
+        // Mandatory fields.
         NSString *stringEventToken = [NSString stringWithUTF8String:eventToken];
-
         ADJEvent *event = [ADJEvent eventWithEventToken:stringEventToken];
 
         // Optional fields.
@@ -133,26 +130,6 @@ extern "C"
             }
         }
 
-        if ([[NSNumber numberWithInt:isReceiptSet] boolValue]) {
-            NSString *stringReceipt = nil;
-            NSString *stringTransactionId = nil;
-
-            if (receipt != NULL) {
-                stringReceipt = [NSString stringWithUTF8String:receipt];
-            }
-
-            if (transactionId != NULL) {
-                stringTransactionId = [NSString stringWithUTF8String:transactionId];
-            }
-
-            [event setReceipt:[stringReceipt dataUsingEncoding:NSUTF8StringEncoding] transactionId:stringTransactionId];
-        } else {
-            if (transactionId != NULL) {
-                NSString *stringTransactionId = [NSString stringWithUTF8String:transactionId];
-                [event setTransactionId:stringTransactionId];
-            }
-        }
-
         [Adjust trackEvent:event];
     }
 
@@ -173,11 +150,5 @@ extern "C"
         BOOL bEnabled = (BOOL)enabled;
 
         [Adjust setOfflineMode:bEnabled];
-    }
-
-    void _AdjustSetDeviceToken(const char* deviceToken) {
-        NSString *stringDeviceToken = [NSString stringWithUTF8String:deviceToken];
-
-        [Adjust setDeviceToken:[stringDeviceToken dataUsingEncoding:NSUTF8StringEncoding]];
     }
 }
