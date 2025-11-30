@@ -10,8 +10,6 @@ namespace com.adjust.sdk
 #if UNITY_IOS
 	public class AdjustiOS : IAdjust
 	{
-		private const string sdkPrefix = "unity4.0.2";
-
 		#region External methods
 
 		[DllImport ("__Internal")]
@@ -29,17 +27,18 @@ namespace com.adjust.sdk
 		[DllImport ("__Internal")]
 		private static extern void _AdjustSetOfflineMode (int enabled);
 
-		#endregion
-
 		public AdjustiOS ()
 		{
 		}
+
+		#endregion
 
 		#region Public methods
 
 		public void start (AdjustConfig adjustConfig)
 		{
 			string appToken = adjustConfig .appToken;
+			string sdkPrefix = adjustConfig.sdkPrefix;
 			string sceneName = adjustConfig.sceneName;
 			string environment = adjustConfig.environment.ToString ().ToLower ();
 
