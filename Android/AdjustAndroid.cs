@@ -116,16 +116,43 @@ namespace com.adjust.sdk
 
 		public bool isEnabled ()
 		{
-			return ajcAdjust.CallStatic<bool> ("isEnabled");
+			var ajo = ajcAdjust.CallStatic<AndroidJavaObject> ("isEnabled");
+			return ConvertBoolFromJava (ajo) ?? false;
 		}
 
 		public void setEnabled(bool enabled) {
-			ajcAdjust.CallStatic ("setEnabled", enabled);
+			ajcAdjust.CallStatic ("setEnabled", ConvertBoolToJava(enabled));
 		}
 
 		public void setOfflineMode(bool enabled)
 		{
-			ajcAdjust.CallStatic ("setOfflineMode", enabled);
+			ajcAdjust.CallStatic ("setOfflineMode", ConvertBoolToJava (enabled));
+		}
+
+		#endregion
+
+		#region Private & helper methods
+
+		private AndroidJavaObject ConvertBoolToJava(bool value) 
+		{
+			AndroidJavaObject javaBool = new AndroidJavaObject ("java.lang.Boolean", value.ToString ().ToLower ());
+
+			return javaBool;
+		}
+
+		private bool? ConvertBoolFromJava (AndroidJavaObject ajo)
+		{
+			if (ajo == null) {
+				return null;
+			}
+
+			var sBool = ajo.Call<string> ("toString");
+			
+			try {
+				return Convert.ToBoolean (sBool);
+			} catch (FormatException) {
+				return null;
+			}
 		}
 
 		#endregion
